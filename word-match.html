@@ -401,55 +401,59 @@
 
         .grade-select, .unit-select {
             padding: 6px 14px;
-            border: 2px solid rgba(255,255,255,0.5);
+            border: 2px solid #fff;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
-            background: rgba(255,255,255,0.2);
-            color: #fff;
+            background: #fff;
+            color: #333;
             cursor: pointer;
             outline: none;
-            transition: background 0.2s;
+            transition: all 0.2s;
             -webkit-appearance: none;
             appearance: none;
         }
-        .grade-select:hover, .unit-select:hover { background: rgba(255,255,255,0.3); }
-        .grade-select option, .unit-select option { color: #333; background: white; }
+        .grade-select:hover, .unit-select:hover {
+            background: #f0f0ff;
+            border-color: #e0e0ff;
+        }
+        .grade-select option, .unit-select option { color: #333; background: #fff; }
 
         .pick-btn {
-            padding: 5px 14px;
-            border: 2px solid rgba(255,255,255,0.6);
+            padding: 6px 16px;
+            border: 2px solid #fff;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            background: rgba(255,255,255,0.2);
-            color: #fff;
-            transition: all 0.25s;
+            background: #fff;
+            color: #333;
+            transition: all 0.2s;
         }
 
         .pick-btn:hover {
-            background: rgba(255,255,255,0.25);
-            transform: translateY(-1px);
+            background: #f0f0ff;
+            border-color: #e0e0ff;
         }
 
         .voice-select {
-            padding: 5px 10px;
-            border: 1.5px solid rgba(255,255,255,0.35);
-            border-radius: 18px;
-            font-size: 12px;
-            background: rgba(255,255,255,0.12);
-            color: rgba(255,255,255,0.85);
+            padding: 6px 12px;
+            border: 2px solid #fff;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            background: #fff;
+            color: #333;
             cursor: pointer;
             outline: none;
-            max-width: 110px;
-            transition: background 0.2s;
+            max-width: 120px;
+            transition: all 0.2s;
             -webkit-appearance: none;
             appearance: none;
         }
 
-        .voice-select:hover { background: rgba(255,255,255,0.25); }
-        .voice-select option { color: #333; background: white; }
+        .voice-select:hover { background: #f0f0ff; border-color: #e0e0ff; }
+        .voice-select option { color: #333; background: #fff; }
 
         .pick-count {
             font-size: 12px;
@@ -629,7 +633,7 @@
             .countdown-number { font-size: 2.5em; }
             .game-stats { gap: 10px; padding: 8px 12px; }
             .stat-value { font-size: 18px; }
-            .voice-select { max-width: 80px; font-size: 11px; }
+            .voice-select { max-width: 90px; font-size: 12px; padding: 5px 10px; }
         }
 
         /* Mobile: panel full-screen */
