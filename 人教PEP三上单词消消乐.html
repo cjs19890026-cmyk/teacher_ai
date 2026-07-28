@@ -428,6 +428,24 @@
             transform: translateY(-1px);
         }
 
+        .voice-select {
+            padding: 5px 10px;
+            border: 1.5px solid rgba(255,255,255,0.35);
+            border-radius: 18px;
+            font-size: 12px;
+            background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85);
+            cursor: pointer;
+            outline: none;
+            max-width: 110px;
+            transition: background 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .voice-select:hover { background: rgba(255,255,255,0.25); }
+        .voice-select option { color: #333; background: white; }
+
         .pick-count {
             font-size: 12px;
             color: rgba(255,255,255,0.6);
@@ -597,6 +615,7 @@
             .countdown-number { font-size: 2.5em; }
             .game-stats { gap: 10px; padding: 8px 12px; }
             .stat-value { font-size: 18px; }
+            .voice-select { max-width: 80px; font-size: 11px; }
         }
 
         /* Mobile: panel full-screen */
@@ -630,6 +649,9 @@
             <button class="grade-btn" data-grade="四上">四上</button>
         </div>
         <button class="pick-btn" id="pickBtn">📝 自选</button>
+        <select class="voice-select" id="voiceSelect">
+            <option value="">🔊 语音</option>
+        </select>
         <span class="pick-count" id="pickCount">6 单元</span>
     </div>
 
@@ -937,6 +959,7 @@
     const pickPanelCount = document.getElementById('pickPanelCount');
     const pickPanelClose = document.getElementById('pickPanelClose');
     const pickPanelConfirm = document.getElementById('pickPanelConfirm');
+    const voiceSelect = document.getElementById('voiceSelect');
 
     // ==========================================
     // 🔧 核心函数
@@ -1238,18 +1261,66 @@
     // 🔊 语音 & 音效
     // ==========================================
 
+    let availableVoices = [];
+
+    function populateVoiceSelect() {
+        const voices = speechSynthesis.getVoices();
+        const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+        availableVoices = englishVoices;
+
+        // 保留第一个选项"自动"
+        voiceSelect.innerHTML = '<option value="">🔊 自动</option>';
+
+        // 按名称去重排序
+        const seen = new Set();
+        englishVoices.forEach(v => {
+            const label = `${v.name} (${v.lang})`;
+            if (seen.has(label)) return;
+            seen.add(label);
+            const opt = document.createElement('option');
+            opt.value = v.name;
+            opt.textContent = label;
+            if (v.name === 'Samantha' || v.name === 'Alex' || v.name === 'Karen' || v.name === 'Daniel') {
+                opt.dataset.recommended = '1';
+            }
+            voiceSelect.appendChild(opt);
+        });
+
+        // 标记推荐语音
+        voiceSelect.querySelectorAll('[data-recommended]').forEach(opt => {
+            opt.textContent += ' ⭐';
+        });
+    }
+
     function speakWord(text) {
-        if ('speechSynthesis' in window) {
-            speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = 'en-US';
-            u.rate = 0.8;
-            u.pitch = 1;
-            const voices = speechSynthesis.getVoices();
-            const engVoice = voices.find(v => v.lang.startsWith('en') && v.localService);
-            if (engVoice) u.voice = engVoice;
-            speechSynthesis.speak(u);
+        if (!('speechSynthesis' in window)) return;
+        speechSynthesis.cancel();
+
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        u.rate = 0.85;
+        u.pitch = 1.0;
+        u.volume = 1;
+
+        const selectedName = voiceSelect.value;
+        if (selectedName) {
+            // 用户选了特定语音
+            const voice = availableVoices.find(v => v.name === selectedName);
+            if (voice) u.voice = voice;
+        } else {
+            // 自动模式：优先用自然语音
+            const preferred = ['Samantha', 'Karen', 'Alex', 'Daniel', 'Moira', 'Tessa'];
+            for (const name of preferred) {
+                const v = availableVoices.find(vv => vv.name === name);
+                if (v) { u.voice = v; break; }
+            }
+            // 还是没找到，用第一个 en-US
+            if (!u.voice) {
+                u.voice = availableVoices.find(v => v.lang === 'en-US');
+            }
         }
+
+        speechSynthesis.speak(u);
     }
 
     function playSound(success) {
@@ -1438,8 +1509,12 @@
 
         // 初始化语音
         if ('speechSynthesis' in window) {
-            speechSynthesis.getVoices();
-            window.speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+            // 立即尝试（部分浏览器同步返回）
+            populateVoiceSelect();
+            // 语音列表异步加载时再填充一次
+            window.speechSynthesis.onvoiceschanged = () => {
+                populateVoiceSelect();
+            };
         }
 
         // 初始化：默认全选当前年级
