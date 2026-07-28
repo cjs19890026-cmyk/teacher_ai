@@ -5687,10 +5687,19 @@ const VOCAB_DATA = [
             });
         });
 
-        // 模式切换：对战双方始终使用同一张随机棋盘，开始后锁定模式。
+        // 模式切换：游戏中切换自动结束当前对局，无须手动重置。
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                if (gameState.isPlaying) return;
+                gameState.isPlaying = false;
+                gameState.isPaused = false;
+                if (gameState.timer) {
+                    clearInterval(gameState.timer);
+                    gameState.timer = null;
+                }
+                document.getElementById('pauseBtn').textContent = '⏸️ 暂停';
+                winnerAnnouncement.style.display = 'none';
+                gameBoard.style.display = '';
+                document.getElementById('pkArea')?.classList.remove('visible');
                 gameState.mode = this.dataset.mode;
                 document.querySelectorAll('.mode-btn').forEach(item => {
                     const active = item === this;
