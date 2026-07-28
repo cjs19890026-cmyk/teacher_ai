@@ -46,39 +46,6 @@
             margin-bottom: 10px;
         }
 
-        /* Unit Selector */
-        .unit-selector {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .unit-btn {
-            padding: 6px 14px;
-            border: 2px solid rgba(255,255,255,0.4);
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(255,255,255,0.15);
-            color: white;
-        }
-
-        .unit-btn:hover {
-            transform: translateY(-2px);
-            background: rgba(255,255,255,0.3);
-        }
-
-        .unit-btn.active {
-            background: white;
-            color: #764ba2;
-            border-color: white;
-            transform: scale(1.05);
-        }
-
         /* Level Selector */
         .level-selector {
             display: flex;
@@ -131,9 +98,35 @@
         .stat-value { font-size: 22px; font-weight: bold; color: #333; }
 
         .stat-value.score { color: #f093fb; }
-        .stat-value.combo { color: #fa709a; }
-        .stat-value.timer { color: #43e97b; }
         .stat-value.accuracy { color: #667eea; }
+
+        /* Tile emoji (Chinese side only) */
+        .tile-emoji {
+            font-size: clamp(1.2rem, 4cqi, 2rem);
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+
+        /* Scoring rules in stats bar */
+        .stat-item.rule {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            background: rgba(102,126,234,0.08);
+            padding: 4px 14px;
+            border-radius: 10px;
+            min-width: auto;
+        }
+
+        .rule-line {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            line-height: 1.6;
+            white-space: nowrap;
+        }
 
         /* Progress Bar */
         .progress-bar {
@@ -153,6 +146,68 @@
             width: 0%;
         }
 
+        /* Big Countdown */
+        .countdown-wrap {
+            text-align: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            position: relative;
+        }
+
+        .countdown-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5em;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 3px 15px rgba(0,0,0,0.3);
+            min-width: 100px;
+            transition: color 0.3s;
+            letter-spacing: 2px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .countdown-number .seconds-label {
+            font-size: 0.35em;
+            font-weight: 400;
+            opacity: 0.7;
+            margin-left: 6px;
+        }
+
+        .countdown-number.urgent {
+            color: #ff4757;
+            animation: pulse 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.08); }
+        }
+
+        .countdown-ring {
+            position: absolute;
+            bottom: 0;
+            left: 15%;
+            right: 15%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .countdown-ring-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #43e97b, #38f9d7);
+            border-radius: 4px;
+            transition: width 1s linear;
+            width: 100%;
+        }
+
+        .countdown-ring-fill.urgent {
+            background: linear-gradient(90deg, #ff4757, #ff6b81);
+        }
+
         /* Game Board */
         .game-board {
             display: grid;
@@ -161,6 +216,7 @@
             padding: 15px;
             border-radius: 16px;
             margin-bottom: 12px;
+            container-type: inline-size;
         }
 
         .game-board.easy { grid-template-columns: repeat(4, 1fr); }
@@ -220,23 +276,18 @@
             75% { transform: translateX(-5px); }
         }
 
-        .tile-emoji {
-            font-size: 1.5em;
-            line-height: 1;
-        }
-
         .tile-content {
-            font-size: 0.85em;
+            font-size: clamp(0.75rem, 3.8cqi, 1.3rem);
             font-weight: bold;
             text-align: center;
-            margin-top: 3px;
+            margin-top: 2px;
             color: #333;
-            line-height: 1.2;
+            line-height: 1.15;
+            word-break: break-word;
         }
 
         .tile-content.english {
             color: #667eea;
-            font-size: 0.9em;
         }
 
         .tile-content.chinese {
@@ -323,15 +374,234 @@
         }
 
         /* Responsive */
+        /* Grade selector + pick button row */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .grade-selector {
+            display: flex;
+            gap: 4px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 25px;
+            padding: 3px;
+        }
+
+        .grade-btn {
+            padding: 5px 14px;
+            border: none;
+            border-radius: 22px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            color: rgba(255,255,255,0.7);
+            background: transparent;
+        }
+
+        .grade-btn.active {
+            background: white;
+            color: #764ba2;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .grade-btn:hover:not(.active) { color: white; }
+
+        .pick-btn {
+            padding: 5px 14px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(255,255,255,0.12);
+            color: white;
+            transition: all 0.25s;
+        }
+
+        .pick-btn:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-1px);
+        }
+
+        .pick-count {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            margin-left: auto;
+        }
+
+        /* Slide-out pick panel */
+        .pick-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .pick-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .pick-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 380px;
+            max-width: 90vw;
+            height: 100vh;
+            background: white;
+            z-index: 201;
+            box-shadow: -8px 0 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 20px 0 0 20px;
+        }
+
+        .pick-panel.open {
+            transform: translateX(0);
+        }
+
+        .pick-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+            font-size: 17px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .pick-panel-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            background: #f5f5f5;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .pick-panel-close:hover { background: #e0e0e0; }
+
+        .pick-panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px;
+        }
+
+        /* Unit section in panel */
+        .pick-unit {
+            margin-bottom: 16px;
+        }
+
+        .pick-unit-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #555;
+            margin-bottom: 6px;
+            padding-left: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pick-unit-words {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .pick-word {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 1.5px solid #ddd;
+            background: #fafafa;
+            cursor: pointer;
+            font-size: 13px;
+            color: #333;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .pick-word:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .pick-word.checked {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .pick-word .pw-en { font-weight: 600; }
+        .pick-word .pw-zh { opacity: 0.6; }
+        .pick-word.checked .pw-zh { opacity: 0.8; }
+        .pick-word .pw-emoji { font-size: 1.1em; }
+
+        .pick-panel-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pick-panel-count {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .pick-panel-confirm {
+            padding: 8px 22px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .pick-panel-confirm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+
         @media (max-width: 500px) {
             .game-title { font-size: 1.5em; }
             .game-board { gap: 5px; padding: 10px; }
             .word-tile { min-height: 60px; border-radius: 8px; }
-            .tile-emoji { font-size: 1.2em; }
-            .tile-content { font-size: 0.75em; }
+            .tile-content { font-size: clamp(0.65rem, 3.5cqi, 1rem); }
+            .tile-emoji { font-size: clamp(1rem, 3.5cqi, 1.6rem); }
+            .countdown-number { font-size: 2.5em; }
             .game-stats { gap: 10px; padding: 8px 12px; }
             .stat-value { font-size: 18px; }
-            .unit-btn { font-size: 11px; padding: 4px 10px; }
+        }
+
+        /* Mobile: panel full-screen */
+        @media (max-width: 500px) {
+            .pick-panel { width: 100vw; border-radius: 0; }
         }
 
         /* Bottom hint */
@@ -349,17 +619,18 @@
     <!-- Header -->
     <div class="game-header">
         <div class="game-title">📚 单词消消乐</div>
-        <div class="subtitle">人教PEP · 三年级上册</div>
+        <div class="subtitle" id="subtitle">人教PEP · 三年级上册</div>
     </div>
 
-    <!-- Unit Selector -->
-    <div class="unit-selector" id="unitSelector">
-        <button class="unit-btn active" data-unit="1">Unit 1 文具</button>
-        <button class="unit-btn" data-unit="2">Unit 2 颜色</button>
-        <button class="unit-btn" data-unit="3">Unit 3 身体</button>
-        <button class="unit-btn" data-unit="4">Unit 4 动物</button>
-        <button class="unit-btn" data-unit="5">Unit 5 食物</button>
-        <button class="unit-btn" data-unit="6">Unit 6 数字</button>
+    <!-- Grade Selector + 选词按钮 -->
+    <div class="top-bar">
+        <div class="grade-selector" id="gradeSelector">
+            <button class="grade-btn active" data-grade="三上">三上</button>
+            <button class="grade-btn" data-grade="三下">三下</button>
+            <button class="grade-btn" data-grade="四上">四上</button>
+        </div>
+        <button class="pick-btn" id="pickBtn">📝 自选</button>
+        <span class="pick-count" id="pickCount">6 单元</span>
     </div>
 
     <!-- Level Selector -->
@@ -380,17 +651,26 @@
             <div class="stat-label">⭐ 得分</div>
             <div class="stat-value score" id="score">0</div>
         </div>
-        <div class="stat-item">
-            <div class="stat-label">🔥 连击</div>
-            <div class="stat-value combo" id="combo">0</div>
+        <div class="stat-item rule">
+            <div class="rule-line">✅ +10</div>
+            <div class="rule-line">❌ −5</div>
+            <div class="rule-line">⏱️ +2/秒</div>
         </div>
         <div class="stat-item">
             <div class="stat-label">⏱️ 时间</div>
-            <div class="stat-value timer" id="timer">90</div>
+            <div class="stat-value timer" id="timer">60</div>
         </div>
         <div class="stat-item">
             <div class="stat-label">🎯 正确率</div>
             <div class="stat-value accuracy" id="accuracy">100%</div>
+        </div>
+    </div>
+
+    <!-- Big Countdown -->
+    <div class="countdown-wrap" id="countdownWrap">
+        <div class="countdown-number" id="countdownNumber">60<span class="seconds-label">秒</span></div>
+        <div class="countdown-ring">
+            <div class="countdown-ring-fill" id="countdownRingFill"></div>
         </div>
     </div>
 
@@ -407,99 +687,201 @@
     <div class="game-footer">点击两张卡片，英文 ↔ 中文配对消除</div>
 </div>
 
+<!-- 侧边选词面板 -->
+<div class="pick-overlay" id="pickOverlay"></div>
+<div class="pick-panel" id="pickPanel">
+    <div class="pick-panel-header">
+        <span>📝 自选单词</span>
+        <button class="pick-panel-close" id="pickPanelClose">✕</button>
+    </div>
+    <div class="pick-panel-body" id="pickPanelBody">
+        <!-- 由 JS 动态渲染 -->
+    </div>
+    <div class="pick-panel-footer">
+        <span id="pickPanelCount">已选 0 个单词</span>
+        <button class="pick-panel-confirm" id="pickPanelConfirm">✅ 确认</button>
+    </div>
+</div>
+
 <!-- Winner Announcement -->
 <div class="winner-announcement" id="winnerAnnouncement"></div>
 
 <script>
     // ==========================================
-    // 📖 人教PEP 三年级上册 单词数据库
+    // 📖 人教PEP 单词数据库（三上 ~ 四上）
     // ==========================================
-    const wordDatabase = {
-        1: { name: '文具', words: [
-            {en: 'ruler', zh: '尺子', emoji: '📏'},
-            {en: 'pencil', zh: '铅笔', emoji: '✏️'},
-            {en: 'eraser', zh: '橡皮', emoji: '🧹'},
-            {en: 'crayon', zh: '蜡笔', emoji: '🖍️'},
-            {en: 'bag', zh: '书包', emoji: '🎒'},
-            {en: 'pen', zh: '钢笔', emoji: '🖊️'},
-            {en: 'pencil box', zh: '铅笔盒', emoji: '📦'},
-            {en: 'book', zh: '书', emoji: '📕'},
-            {en: 'sharpener', zh: '卷笔刀', emoji: '🔪'},
-            {en: 'notebook', zh: '笔记本', emoji: '📓'},
-        ]},
-        2: { name: '颜色', words: [
-            {en: 'red', zh: '红色', emoji: '🔴'},
-            {en: 'yellow', zh: '黄色', emoji: '🟡'},
-            {en: 'green', zh: '绿色', emoji: '🟢'},
-            {en: 'blue', zh: '蓝色', emoji: '🔵'},
-            {en: 'brown', zh: '棕色', emoji: '🟤'},
-            {en: 'white', zh: '白色', emoji: '⚪'},
-            {en: 'black', zh: '黑色', emoji: '⚫'},
-            {en: 'orange', zh: '橙色', emoji: '🟠'},
-            {en: 'pink', zh: '粉色', emoji: '🩷'},
-            {en: 'purple', zh: '紫色', emoji: '🟣'},
-        ]},
-        3: { name: '身体', words: [
-            {en: 'face', zh: '脸', emoji: '😊'},
-            {en: 'ear', zh: '耳朵', emoji: '👂'},
-            {en: 'eye', zh: '眼睛', emoji: '👁️'},
-            {en: 'nose', zh: '鼻子', emoji: '👃'},
-            {en: 'mouth', zh: '嘴巴', emoji: '👄'},
-            {en: 'arm', zh: '手臂', emoji: '💪'},
-            {en: 'hand', zh: '手', emoji: '✋'},
-            {en: 'head', zh: '头', emoji: '🗣️'},
-            {en: 'body', zh: '身体', emoji: '🧍'},
-            {en: 'leg', zh: '腿', emoji: '🦵'},
-            {en: 'foot', zh: '脚', emoji: '🦶'},
-        ]},
-        4: { name: '动物', words: [
-            {en: 'duck', zh: '鸭子', emoji: '🦆'},
-            {en: 'pig', zh: '猪', emoji: '🐷'},
-            {en: 'cat', zh: '猫', emoji: '🐱'},
-            {en: 'bear', zh: '熊', emoji: '🐻'},
-            {en: 'dog', zh: '狗', emoji: '🐶'},
-            {en: 'elephant', zh: '大象', emoji: '🐘'},
-            {en: 'monkey', zh: '猴子', emoji: '🐵'},
-            {en: 'bird', zh: '鸟', emoji: '🐦'},
-            {en: 'tiger', zh: '老虎', emoji: '🐯'},
-            {en: 'panda', zh: '熊猫', emoji: '🐼'},
-            {en: 'zoo', zh: '动物园', emoji: '🏛️'},
-        ]},
-        5: { name: '食物', words: [
-            {en: 'bread', zh: '面包', emoji: '🍞'},
-            {en: 'juice', zh: '果汁', emoji: '🧃'},
-            {en: 'egg', zh: '鸡蛋', emoji: '🥚'},
-            {en: 'milk', zh: '牛奶', emoji: '🥛'},
-            {en: 'water', zh: '水', emoji: '💧'},
-            {en: 'cake', zh: '蛋糕', emoji: '🎂'},
-            {en: 'fish', zh: '鱼', emoji: '🐟'},
-            {en: 'rice', zh: '米饭', emoji: '🍚'},
-            {en: 'noodles', zh: '面条', emoji: '🍜'},
-            {en: 'chicken', zh: '鸡肉', emoji: '🍗'},
-        ]},
-        6: { name: '数字', words: [
-            {en: 'one', zh: '一', emoji: '1️⃣'},
-            {en: 'two', zh: '二', emoji: '2️⃣'},
-            {en: 'three', zh: '三', emoji: '3️⃣'},
-            {en: 'four', zh: '四', emoji: '4️⃣'},
-            {en: 'five', zh: '五', emoji: '5️⃣'},
-            {en: 'six', zh: '六', emoji: '6️⃣'},
-            {en: 'seven', zh: '七', emoji: '7️⃣'},
-            {en: 'eight', zh: '八', emoji: '8️⃣'},
-            {en: 'nine', zh: '九', emoji: '9️⃣'},
-            {en: 'ten', zh: '十', emoji: '🔟'},
-        ]}
+    const gradeData = {
+        '三上': {
+            name: '三年级上册',
+            units: [
+                { id: 1, name: '文具', words: [
+                    {en: 'ruler', zh: '尺子', emoji: '📏'}, {en: 'pencil', zh: '铅笔', emoji: '✏️'},
+                    {en: 'eraser', zh: '橡皮', emoji: '🧹'}, {en: 'crayon', zh: '蜡笔', emoji: '🖍️'},
+                    {en: 'bag', zh: '书包', emoji: '🎒'}, {en: 'pen', zh: '钢笔', emoji: '🖊️'},
+                    {en: 'pencil box', zh: '铅笔盒', emoji: '📦'}, {en: 'book', zh: '书', emoji: '📕'},
+                    {en: 'sharpener', zh: '卷笔刀', emoji: '🔪'}, {en: 'notebook', zh: '笔记本', emoji: '📓'},
+                ]},
+                { id: 2, name: '颜色', words: [
+                    {en: 'red', zh: '红色', emoji: '🔴'}, {en: 'yellow', zh: '黄色', emoji: '🟡'},
+                    {en: 'green', zh: '绿色', emoji: '🟢'}, {en: 'blue', zh: '蓝色', emoji: '🔵'},
+                    {en: 'brown', zh: '棕色', emoji: '🟤'}, {en: 'white', zh: '白色', emoji: '⚪'},
+                    {en: 'black', zh: '黑色', emoji: '⚫'}, {en: 'orange', zh: '橙色', emoji: '🟠'},
+                    {en: 'pink', zh: '粉色', emoji: '🩷'}, {en: 'purple', zh: '紫色', emoji: '🟣'},
+                ]},
+                { id: 3, name: '身体', words: [
+                    {en: 'face', zh: '脸', emoji: '😊'}, {en: 'ear', zh: '耳朵', emoji: '👂'},
+                    {en: 'eye', zh: '眼睛', emoji: '👁️'}, {en: 'nose', zh: '鼻子', emoji: '👃'},
+                    {en: 'mouth', zh: '嘴巴', emoji: '👄'}, {en: 'arm', zh: '手臂', emoji: '💪'},
+                    {en: 'hand', zh: '手', emoji: '✋'}, {en: 'head', zh: '头', emoji: '🗣️'},
+                    {en: 'body', zh: '身体', emoji: '🧍'}, {en: 'leg', zh: '腿', emoji: '🦵'},
+                    {en: 'foot', zh: '脚', emoji: '🦶'},
+                ]},
+                { id: 4, name: '动物', words: [
+                    {en: 'duck', zh: '鸭子', emoji: '🦆'}, {en: 'pig', zh: '猪', emoji: '🐷'},
+                    {en: 'cat', zh: '猫', emoji: '🐱'}, {en: 'bear', zh: '熊', emoji: '🐻'},
+                    {en: 'dog', zh: '狗', emoji: '🐶'}, {en: 'elephant', zh: '大象', emoji: '🐘'},
+                    {en: 'monkey', zh: '猴子', emoji: '🐵'}, {en: 'bird', zh: '鸟', emoji: '🐦'},
+                    {en: 'tiger', zh: '老虎', emoji: '🐯'}, {en: 'panda', zh: '熊猫', emoji: '🐼'},
+                    {en: 'zoo', zh: '动物园', emoji: '🏛️'},
+                ]},
+                { id: 5, name: '食物', words: [
+                    {en: 'bread', zh: '面包', emoji: '🍞'}, {en: 'juice', zh: '果汁', emoji: '🧃'},
+                    {en: 'egg', zh: '鸡蛋', emoji: '🥚'}, {en: 'milk', zh: '牛奶', emoji: '🥛'},
+                    {en: 'water', zh: '水', emoji: '💧'}, {en: 'cake', zh: '蛋糕', emoji: '🎂'},
+                    {en: 'fish', zh: '鱼', emoji: '🐟'}, {en: 'rice', zh: '米饭', emoji: '🍚'},
+                    {en: 'noodles', zh: '面条', emoji: '🍜'}, {en: 'chicken', zh: '鸡肉', emoji: '🍗'},
+                ]},
+                { id: 6, name: '数字', words: [
+                    {en: 'one', zh: '一', emoji: '1️⃣'}, {en: 'two', zh: '二', emoji: '2️⃣'},
+                    {en: 'three', zh: '三', emoji: '3️⃣'}, {en: 'four', zh: '四', emoji: '4️⃣'},
+                    {en: 'five', zh: '五', emoji: '5️⃣'}, {en: 'six', zh: '六', emoji: '6️⃣'},
+                    {en: 'seven', zh: '七', emoji: '7️⃣'}, {en: 'eight', zh: '八', emoji: '8️⃣'},
+                    {en: 'nine', zh: '九', emoji: '9️⃣'}, {en: 'ten', zh: '十', emoji: '🔟'},
+                ]},
+            ]
+        },
+        '三下': {
+            name: '三年级下册',
+            units: [
+                { id: 1, name: '国家', words: [
+                    {en: 'UK', zh: '英国', emoji: '🇬🇧'}, {en: 'Canada', zh: '加拿大', emoji: '🇨🇦'},
+                    {en: 'USA', zh: '美国', emoji: '🇺🇸'}, {en: 'China', zh: '中国', emoji: '🇨🇳'},
+                    {en: 'Australia', zh: '澳大利亚', emoji: '🇦🇺'}, {en: 'student', zh: '学生', emoji: '🧑‍🎓'},
+                    {en: 'teacher', zh: '老师', emoji: '👩‍🏫'}, {en: 'she', zh: '她', emoji: '👩'},
+                    {en: 'he', zh: '他', emoji: '👨'}, {en: 'pupil', zh: '小学生', emoji: '🧒'},
+                ]},
+                { id: 2, name: '家庭', words: [
+                    {en: 'father', zh: '父亲', emoji: '👨'}, {en: 'mother', zh: '母亲', emoji: '👩'},
+                    {en: 'brother', zh: '兄弟', emoji: '👦'}, {en: 'sister', zh: '姐妹', emoji: '👧'},
+                    {en: 'grandpa', zh: '爷爷', emoji: '👴'}, {en: 'grandma', zh: '奶奶', emoji: '👵'},
+                    {en: 'family', zh: '家庭', emoji: '👪'}, {en: 'man', zh: '男人', emoji: '🧑'},
+                    {en: 'woman', zh: '女人', emoji: '👩'}, {en: 'baby', zh: '婴儿', emoji: '👶'},
+                ]},
+                { id: 3, name: '描述', words: [
+                    {en: 'thin', zh: '瘦的', emoji: '🧵'}, {en: 'fat', zh: '胖的', emoji: '🐷'},
+                    {en: 'tall', zh: '高的', emoji: '📏'}, {en: 'short', zh: '矮的', emoji: '📐'},
+                    {en: 'long', zh: '长的', emoji: '↔️'}, {en: 'small', zh: '小的', emoji: '🐭'},
+                    {en: 'big', zh: '大的', emoji: '🐘'}, {en: 'giraffe', zh: '长颈鹿', emoji: '🦒'},
+                    {en: 'children', zh: '孩子们', emoji: '👧👦'}, {en: 'tail', zh: '尾巴', emoji: '🦊'},
+                ]},
+                { id: 4, name: '位置', words: [
+                    {en: 'on', zh: '在…上', emoji: '⬆️'}, {en: 'in', zh: '在…里', emoji: '📥'},
+                    {en: 'under', zh: '在…下', emoji: '⬇️'}, {en: 'behind', zh: '在…后', emoji: '⬅️'},
+                    {en: 'chair', zh: '椅子', emoji: '🪑'}, {en: 'desk', zh: '书桌', emoji: '🪹'},
+                    {en: 'cap', zh: '帽子', emoji: '🧢'}, {en: 'ball', zh: '球', emoji: '⚽'},
+                    {en: 'car', zh: '小汽车', emoji: '🚗'}, {en: 'boat', zh: '小船', emoji: '⛵'},
+                    {en: 'map', zh: '地图', emoji: '🗺️'}, {en: 'toy', zh: '玩具', emoji: '🧸'},
+                    {en: 'box', zh: '盒子', emoji: '📦'},
+                ]},
+                { id: 5, name: '水果', words: [
+                    {en: 'peach', zh: '桃子', emoji: '🍑'}, {en: 'pear', zh: '梨', emoji: '🍐'},
+                    {en: 'orange', zh: '橙子', emoji: '🍊'}, {en: 'watermelon', zh: '西瓜', emoji: '🍉'},
+                    {en: 'apple', zh: '苹果', emoji: '🍎'}, {en: 'banana', zh: '香蕉', emoji: '🍌'},
+                    {en: 'strawberry', zh: '草莓', emoji: '🍓'}, {en: 'grape', zh: '葡萄', emoji: '🍇'},
+                    {en: 'fruit', zh: '水果', emoji: '🍒'},
+                ]},
+                { id: 6, name: '数字', words: [
+                    {en: 'eleven', zh: '十一', emoji: '1️⃣1️⃣'}, {en: 'twelve', zh: '十二', emoji: '1️⃣2️⃣'},
+                    {en: 'thirteen', zh: '十三', emoji: '1️⃣3️⃣'}, {en: 'fourteen', zh: '十四', emoji: '1️⃣4️⃣'},
+                    {en: 'fifteen', zh: '十五', emoji: '1️⃣5️⃣'}, {en: 'sixteen', zh: '十六', emoji: '1️⃣6️⃣'},
+                    {en: 'seventeen', zh: '十七', emoji: '1️⃣7️⃣'}, {en: 'eighteen', zh: '十八', emoji: '1️⃣8️⃣'},
+                    {en: 'nineteen', zh: '十九', emoji: '1️⃣9️⃣'}, {en: 'twenty', zh: '二十', emoji: '2️⃣0️⃣'},
+                ]},
+            ]
+        },
+        '四上': {
+            name: '四年级上册',
+            units: [
+                { id: 1, name: '教室', words: [
+                    {en: 'classroom', zh: '教室', emoji: '🏫'}, {en: 'window', zh: '窗户', emoji: '🪟'},
+                    {en: 'door', zh: '门', emoji: '🚪'}, {en: 'picture', zh: '图画', emoji: '🖼️'},
+                    {en: 'board', zh: '黑板', emoji: '📋'}, {en: 'light', zh: '灯', emoji: '💡'},
+                    {en: 'fan', zh: '风扇', emoji: '🌀'}, {en: 'floor', zh: '地板', emoji: '🏠'},
+                    {en: 'wall', zh: '墙', emoji: '🧱'}, {en: 'computer', zh: '电脑', emoji: '💻'},
+                    {en: 'teacher\'s desk', zh: '讲台', emoji: '🪹'},
+                ]},
+                { id: 2, name: '书包', words: [
+                    {en: 'schoolbag', zh: '书包', emoji: '🎒'}, {en: 'math book', zh: '数学书', emoji: '📐'},
+                    {en: 'English book', zh: '英语书', emoji: '📘'}, {en: 'Chinese book', zh: '语文书', emoji: '📕'},
+                    {en: 'storybook', zh: '故事书', emoji: '📖'}, {en: 'notebook', zh: '笔记本', emoji: '📓'},
+                    {en: 'candy', zh: '糖果', emoji: '🍬'}, {en: 'toy', zh: '玩具', emoji: '🧸'},
+                    {en: 'key', zh: '钥匙', emoji: '🔑'},
+                ]},
+                { id: 3, name: '朋友', words: [
+                    {en: 'strong', zh: '强壮的', emoji: '💪'}, {en: 'friendly', zh: '友好的', emoji: '🤝'},
+                    {en: 'quiet', zh: '安静的', emoji: '🤫'}, {en: 'hair', zh: '头发', emoji: '💇'},
+                    {en: 'shoe', zh: '鞋', emoji: '👟'}, {en: 'glasses', zh: '眼镜', emoji: '👓'},
+                    {en: 'hat', zh: '帽子', emoji: '🎩'}, {en: 'his', zh: '他的', emoji: '👨'},
+                    {en: 'her', zh: '她的', emoji: '👩'}, {en: 'right', zh: '右边', emoji: '➡️'},
+                    {en: 'left', zh: '左边', emoji: '⬅️'},
+                ]},
+                { id: 4, name: '房间', words: [
+                    {en: 'bedroom', zh: '卧室', emoji: '🛏️'}, {en: 'living room', zh: '客厅', emoji: '🛋️'},
+                    {en: 'study', zh: '书房', emoji: '📚'}, {en: 'kitchen', zh: '厨房', emoji: '🍳'},
+                    {en: 'bathroom', zh: '浴室', emoji: '🚿'}, {en: 'bed', zh: '床', emoji: '🛏️'},
+                    {en: 'table', zh: '桌子', emoji: '🪑'}, {en: 'sofa', zh: '沙发', emoji: '🛋️'},
+                    {en: 'fridge', zh: '冰箱', emoji: '🧊'}, {en: 'phone', zh: '电话', emoji: '📞'},
+                ]},
+                { id: 5, name: '餐饮', words: [
+                    {en: 'beef', zh: '牛肉', emoji: '🥩'}, {en: 'chicken', zh: '鸡肉', emoji: '🍗'},
+                    {en: 'noodles', zh: '面条', emoji: '🍜'}, {en: 'soup', zh: '汤', emoji: '🍲'},
+                    {en: 'vegetable', zh: '蔬菜', emoji: '🥬'}, {en: 'chopsticks', zh: '筷子', emoji: '🥢'},
+                    {en: 'bowl', zh: '碗', emoji: '🥣'}, {en: 'fork', zh: '叉子', emoji: '🍴'},
+                    {en: 'knife', zh: '刀', emoji: '🔪'}, {en: 'spoon', zh: '勺子', emoji: '🥄'},
+                    {en: 'dinner', zh: '晚餐', emoji: '🍽️'},
+                ]},
+                { id: 6, name: '职业', words: [
+                    {en: 'parents', zh: '父母', emoji: '👪'}, {en: 'uncle', zh: '叔叔', emoji: '👨'},
+                    {en: 'aunt', zh: '阿姨', emoji: '👩'}, {en: 'doctor', zh: '医生', emoji: '👨‍⚕️'},
+                    {en: 'farmer', zh: '农民', emoji: '👨‍🌾'}, {en: 'nurse', zh: '护士', emoji: '👩‍⚕️'},
+                    {en: 'cook', zh: '厨师', emoji: '👨‍🍳'}, {en: 'driver', zh: '司机', emoji: '🚗'},
+                    {en: 'football player', zh: '足球运动员', emoji: '⚽'},
+                ]},
+            ]
+        }
     };
+
+    // 生成辅助索引
+    const gradeList = Object.keys(gradeData);
+    function getAllWords(gradeKey) {
+        const g = gradeData[gradeKey];
+        const all = [];
+        g.units.forEach(u => u.words.forEach(w => {
+            all.push({ ...w, unitId: u.id, unitName: u.name, grade: gradeKey });
+        }));
+        return all;
+    }
 
     // ==========================================
     // 🎮 游戏状态
     // ==========================================
     let gameState = {
-        unit: '1',
+        grade: '三上',
+        selectedWordEnSet: null, // Set 初始化在 start
         level: 'easy',
         score: 0,
         combo: 0,
-        timeLeft: 90,
+        timeLeft: 60,
         isPlaying: false,
         isPaused: false,
         selectedTiles: [],
@@ -510,28 +892,55 @@
         matchAttempts: 0
     };
 
+    // 当前选中的单词列表（en 的 Set + 全量数组缓存）
+    let selectedWordSet = new Set();
+    let selectedWordList = [];
+
+    function getGradeWords(gradeKey) {
+        return getAllWords(gradeKey);
+    }
+
+    function getSelectedWordsForGame() {
+        if (selectedWordList.length === 0) {
+            // 默认：当前年级全部单词
+            selectedWordList = getGradeWords(gameState.grade);
+            selectedWordSet = new Set(selectedWordList.map(w => w.en));
+        }
+        return selectedWordList;
+    }
+
+    function rebuildSelectedList() {
+        selectedWordList = getGradeWords(gameState.grade).filter(w => selectedWordSet.has(w.en));
+    }
+
     const levelConfig = {
-        easy:   { size: 4, timeLimit: 90,  pairs: 8 },
-        medium: { size: 5, timeLimit: 120, pairs: 12 },
-        hard:   { size: 6, timeLimit: 150, pairs: 18 }
+        easy:   { size: 4, timeLimit: 60,  pairs: 8 },
+        medium: { size: 5, timeLimit: 60,  pairs: 12 },
+        hard:   { size: 6, timeLimit: 60,  pairs: 18 }
     };
 
     // DOM elements
     const gameBoard = document.getElementById('gameBoard');
     const scoreElement = document.getElementById('score');
-    const comboElement = document.getElementById('combo');
     const timerElement = document.getElementById('timer');
     const accuracyElement = document.getElementById('accuracy');
     const progressFill = document.getElementById('progressFill');
     const winnerAnnouncement = document.getElementById('winnerAnnouncement');
+    const countdownNumber = document.getElementById('countdownNumber');
+    const countdownRingFill = document.getElementById('countdownRingFill');
+    const subtitle = document.getElementById('subtitle');
+    const pickCount = document.getElementById('pickCount');
+    const pickBtn = document.getElementById('pickBtn');
+    const pickPanel = document.getElementById('pickPanel');
+    const pickOverlay = document.getElementById('pickOverlay');
+    const pickPanelBody = document.getElementById('pickPanelBody');
+    const pickPanelCount = document.getElementById('pickPanelCount');
+    const pickPanelClose = document.getElementById('pickPanelClose');
+    const pickPanelConfirm = document.getElementById('pickPanelConfirm');
 
     // ==========================================
     // 🔧 核心函数
     // ==========================================
-
-    function getCurrentWords() {
-        return wordDatabase[gameState.unit].words;
-    }
 
     function initGame() {
         const config = levelConfig[gameState.level];
@@ -551,48 +960,48 @@
         generateGameBoard();
         updateUI();
         winnerAnnouncement.style.display = 'none';
+        updatePickSummary();
     }
 
     // 生成游戏板
     function generateGameBoard() {
         const config = levelConfig[gameState.level];
         const totalTiles = config.size * config.size;
-        const pairs = Math.min(config.pairs, Math.floor(totalTiles / 2));
-        const words = getCurrentWords();
+        const neededPairs = Math.min(config.pairs, Math.floor(totalTiles / 2));
 
-        // 从当前单元选词
-        const shuffledAll = [...words].sort(() => Math.random() - 0.5);
-        const selectedWords = shuffledAll.slice(0, pairs);
+        // 从已选词库中取词
+        let pool = [...getSelectedWordsForGame()];
+
+        // 词不够？从当前年级自动补
+        if (pool.length < neededPairs) {
+            const gradeAll = getGradeWords(gameState.grade);
+            const extra = gradeAll.filter(w => !selectedWordSet.has(w.en));
+            // 打乱后补
+            for (let i = extra.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [extra[i], extra[j]] = [extra[j], extra[i]];
+            }
+            pool = [...pool, ...extra];
+        }
+
+        // 打乱后取 neededPairs 个
+        for (let i = pool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+        const selectedWords = pool.slice(0, neededPairs);
 
         // 创建配对
         const tiles = [];
         selectedWords.forEach(w => {
-            tiles.push({
-                id: `en_${w.en}`,
-                type: 'english',
-                content: w.en,
-                matchId: w.en,
-                word: w
-            });
-            tiles.push({
-                id: `zh_${w.en}`,
-                type: 'chinese',
-                content: w.zh,
-                matchId: w.en,
-                word: w
-            });
+            tiles.push({ id: `en_${w.en}`, type: 'english', content: w.en, matchId: w.en, word: w });
+            tiles.push({ id: `zh_${w.en}`, type: 'chinese', content: w.zh, matchId: w.en, word: w });
         });
 
         // 空白填充
         while (tiles.length < totalTiles) {
-            const rand = words[Math.floor(Math.random() * words.length)];
-            tiles.push({
-                id: `blank_${tiles.length}`,
-                type: 'blank',
-                content: '⭐',
-                matchId: null,
-                word: rand
-            });
+            const rand = pool[Math.floor(Math.random() * pool.length)];
+            tiles.push({ id: `blank_${tiles.length}`, type: 'blank', content: '⭐', matchId: null, word: rand });
         }
 
         // 洗牌
@@ -619,12 +1028,16 @@
 
             if (tile.type === 'blank') {
                 el.classList.add('blank');
-                el.innerHTML = `<div class="tile-emoji">${tile.content}</div>
-                                <div class="tile-content">空</div>`;
+                el.innerHTML = `<div class="tile-content">⭐</div>`;
+            } else if (tile.type === 'chinese') {
+                el.innerHTML = `
+                    <span class="tile-type-badge">中</span>
+                    <div class="tile-emoji">${tile.word.emoji}</div>
+                    <div class="tile-content ${tile.type}">${tile.content}</div>
+                `;
             } else {
                 el.innerHTML = `
-                    <span class="tile-type-badge">${tile.type === 'english' ? 'EN' : '中'}</span>
-                    <div class="tile-emoji">${tile.word.emoji}</div>
+                    <span class="tile-type-badge">EN</span>
                     <div class="tile-content ${tile.type}">${tile.content}</div>
                 `;
             }
@@ -675,7 +1088,7 @@
         gameState.matchAttempts++;
 
         if (t1.tile.matchId === t2.tile.matchId && t1.tile.type !== t2.tile.type) {
-            // ✅ 匹配成功
+            // ✅ 匹配成功：+10分
             t1.element.classList.remove('selected');
             t2.element.classList.remove('selected');
             t1.element.classList.add('matched');
@@ -683,16 +1096,11 @@
 
             gameState.correctAttempts++;
             gameState.combo++;
-
-            const baseScore = 100;
-            const comboBonus = Math.min(gameState.combo * 10, 100);
-            const levelMul = gameState.level === 'easy' ? 1 : gameState.level === 'medium' ? 1.5 : 2;
-            const points = Math.floor((baseScore + comboBonus) * levelMul);
-            gameState.score += points;
+            gameState.score += 10;
 
             playSound(true);
         } else {
-            // ❌ 匹配失败
+            // ❌ 匹配失败：-5分
             t1.element.classList.remove('selected');
             t2.element.classList.remove('selected');
             t1.element.classList.add('wrong');
@@ -704,6 +1112,7 @@
             }, 500);
 
             gameState.combo = 0;
+            gameState.score = Math.max(0, gameState.score - 5);
             playSound(false);
         }
 
@@ -747,9 +1156,22 @@
             : 100;
 
         let emoji = allCleared ? '🏆' : '💪';
-        let msg = allCleared
-            ? `${emoji} ${reason}<br>⭐ 得分: ${gameState.score} 分<br>🎯 正确率: ${accuracy}%`
-            : `${emoji} ${reason}<br>完成 ${matched/2}/${levelConfig[gameState.level].pairs} 对<br>⭐ 得分: ${gameState.score} 分`;
+        let msg;
+
+        if (allCleared) {
+            // 剩余秒数奖励：每秒+2分
+            const timeBonus = gameState.timeLeft * 2;
+            gameState.score += timeBonus;
+            msg = `${emoji} ${reason}<br>
+                   ✅ 配对得分: ${gameState.score - timeBonus} 分<br>
+                   ⏱️ 时间奖励: +${timeBonus} 分<br>
+                   ⭐ 总分: ${gameState.score} 分<br>
+                   🎯 正确率: ${accuracy}%`;
+        } else {
+            msg = `${emoji} ${reason}<br>
+                   完成 ${matched/2}/${levelConfig[gameState.level].pairs} 对<br>
+                   ⭐ 得分: ${gameState.score} 分`;
+        }
 
         showWinner(msg);
         updateUI();
@@ -767,8 +1189,21 @@
     // 更新 UI
     function updateUI() {
         scoreElement.textContent = gameState.score;
-        comboElement.textContent = gameState.combo;
         timerElement.textContent = gameState.timeLeft;
+
+        // 大倒计时
+        const totalTime = levelConfig[gameState.level].timeLimit;
+        countdownNumber.innerHTML = `${gameState.timeLeft}<span class="seconds-label">秒</span>`;
+        countdownRingFill.style.width = (gameState.timeLeft / totalTime) * 100 + '%';
+
+        // 最后10秒变红闪烁
+        if (gameState.timeLeft <= 10 && gameState.isPlaying) {
+            countdownNumber.classList.add('urgent');
+            countdownRingFill.classList.add('urgent');
+        } else {
+            countdownNumber.classList.remove('urgent');
+            countdownRingFill.classList.remove('urgent');
+        }
 
         const accuracy = gameState.totalAttempts > 0
             ? Math.round((gameState.correctAttempts / gameState.totalAttempts) * 100)
@@ -845,20 +1280,120 @@
     }
 
     // ==========================================
+    // 📋 选词面板交互
+    // ==========================================
+
+    function renderPickPanel() {
+        const grade = gameState.grade;
+        const g = gradeData[grade];
+        let html = '';
+        g.units.forEach(unit => {
+            html += `<div class="pick-unit">
+                <div class="pick-unit-title">Unit ${unit.id} · ${unit.name}</div>
+                <div class="pick-unit-words">`;
+            unit.words.forEach(w => {
+                const checked = selectedWordSet.has(w.en) ? 'checked' : '';
+                html += `<div class="pick-word ${checked}" data-en="${w.en}">
+                    <span class="pw-emoji">${w.emoji}</span>
+                    <span class="pw-en">${w.en}</span>
+                    <span class="pw-zh">${w.zh}</span>
+                </div>`;
+            });
+            html += `</div></div>`;
+        });
+        pickPanelBody.innerHTML = html;
+
+        // 绑定点击切换
+        pickPanelBody.querySelectorAll('.pick-word').forEach(el => {
+            el.addEventListener('click', function() {
+                const en = this.dataset.en;
+                toggleWord(en);
+            });
+        });
+
+        updatePickPanelCount();
+    }
+
+    function toggleWord(en) {
+        if (selectedWordSet.has(en)) {
+            selectedWordSet.delete(en);
+        } else {
+            selectedWordSet.add(en);
+        }
+        // 刷新面板勾选状态
+        pickPanelBody.querySelectorAll('.pick-word').forEach(el => {
+            if (el.dataset.en === en) {
+                el.classList.toggle('checked');
+            }
+        });
+        updatePickPanelCount();
+    }
+
+    function updatePickPanelCount() {
+        pickPanelCount.textContent = `已选 ${selectedWordSet.size} 个单词`;
+    }
+
+    function updatePickSummary() {
+        const cnt = selectedWordSet.size;
+        const g = gradeData[gameState.grade];
+        const total = g.units.reduce((s, u) => s + u.words.length, 0);
+        if (cnt === total) {
+            pickCount.textContent = `${g.units.length} 单元 · 全部`;
+        } else {
+            pickCount.textContent = `${g.units.length} 单元 · 已选 ${cnt}`;
+        }
+        subtitle.textContent = `人教PEP · ${g.name}`;
+    }
+
+    function openPickPanel() {
+        renderPickPanel();
+        pickPanel.classList.add('open');
+        pickOverlay.classList.add('open');
+    }
+
+    function closePickPanel() {
+        pickPanel.classList.remove('open');
+        pickOverlay.classList.remove('open');
+    }
+
+    // ==========================================
     // 📋 事件绑定
     // ==========================================
 
     document.addEventListener('DOMContentLoaded', function() {
-        // 单元选择
-        document.querySelectorAll('.unit-btn').forEach(btn => {
+        // 年级选择
+        document.querySelectorAll('.grade-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+                const grade = this.dataset.grade;
+                if (grade === gameState.grade) return;
+                document.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                gameState.unit = this.dataset.unit;
+                gameState.grade = grade;
+
+                // 切换年级清空已选 → 默认全选
+                selectedWordSet = new Set(getGradeWords(grade).map(w => w.en));
+                rebuildSelectedList();
+
+                updatePickSummary();
                 if (!gameState.isPlaying) {
                     initGame();
                 }
             });
+        });
+
+        // 打开选词面板
+        pickBtn.addEventListener('click', openPickPanel);
+        pickOverlay.addEventListener('click', closePickPanel);
+        pickPanelClose.addEventListener('click', closePickPanel);
+
+        // 确认选词
+        pickPanelConfirm.addEventListener('click', function() {
+            rebuildSelectedList();
+            updatePickSummary();
+            closePickPanel();
+            if (!gameState.isPlaying) {
+                initGame();
+            }
         });
 
         // 难度选择
@@ -907,7 +1442,10 @@
             window.speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
         }
 
-        // 初始化
+        // 初始化：默认全选当前年级
+        selectedWordSet = new Set(getGradeWords(gameState.grade).map(w => w.en));
+        rebuildSelectedList();
+        updatePickSummary();
         initGame();
     });
 </script>
