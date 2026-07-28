@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>人教PEP三年级上册 单词消消乐</title>
+    <title>人教PEP 单词消消乐</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -396,33 +396,22 @@
             flex-wrap: wrap;
         }
 
-        .grade-selector {
-            display: flex;
-            gap: 4px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 25px;
-            padding: 3px;
-        }
-
-        .grade-btn {
-            padding: 5px 14px;
-            border: none;
-            border-radius: 22px;
+        .grade-select, .unit-select {
+            padding: 6px 14px;
+            border: 1.5px solid rgba(255,255,255,0.35);
+            border-radius: 20px;
             font-size: 13px;
             font-weight: 600;
+            background: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.9);
             cursor: pointer;
-            transition: all 0.25s;
-            color: rgba(255,255,255,0.7);
-            background: transparent;
+            outline: none;
+            transition: background 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
         }
-
-        .grade-btn.active {
-            background: white;
-            color: #764ba2;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-
-        .grade-btn:hover:not(.active) { color: white; }
+        .grade-select:hover, .unit-select:hover { background: rgba(255,255,255,0.3); }
+        .grade-select option, .unit-select option { color: #333; background: white; }
 
         .pick-btn {
             padding: 5px 14px;
@@ -667,19 +656,16 @@
         <div class="subtitle" id="subtitle">人教PEP · 三年级上册</div>
     </div>
 
-    <!-- Grade Selector + 选词按钮 -->
+    <!-- 年级 + 单元 下拉菜单 -->
     <div class="top-bar">
-        <div class="grade-selector" id="gradeSelector">
-            <button class="grade-btn active" data-grade="三上">三上</button>
-            <button class="grade-btn" data-grade="三下">三下</button>
-            <button class="grade-btn" data-grade="四上">四上</button>
-        </div>
+        <select class="grade-select" id="gradeSelect"></select>
+        <select class="unit-select" id="unitSelect"></select>
         <button class="pick-btn" id="pickBtn">📝 自选</button>
         <select class="voice-select" id="voiceSelect">
             <option value="">🔊 语音</option>
         </select>
-        <span class="pick-count" id="pickCount">6 单元</span>
-    </div>
+        <span class="pick-count" id="pickCount">全部</span>
+    </div></div>
 
     <!-- Level Selector -->
     <div class="level-selector">
@@ -755,168 +741,4048 @@
 <div class="winner-announcement" id="winnerAnnouncement"></div>
 
 <script>
-    // ==========================================
-    // 📖 人教PEP 单词数据库（三上 ~ 四上）
-    // ==========================================
-    const gradeData = {
-        '三上': {
-            name: '三年级上册',
-            units: [
-                { id: 1, name: '文具', words: [
-                    {en: 'ruler', zh: '尺子', emoji: '📏'}, {en: 'pencil', zh: '铅笔', emoji: '✏️'},
-                    {en: 'eraser', zh: '橡皮', emoji: '🧹'}, {en: 'crayon', zh: '蜡笔', emoji: '🖍️'},
-                    {en: 'bag', zh: '书包', emoji: '🎒'}, {en: 'pen', zh: '钢笔', emoji: '🖊️'},
-                    {en: 'pencil box', zh: '铅笔盒', emoji: '📦'}, {en: 'book', zh: '书', emoji: '📕'},
-                    {en: 'sharpener', zh: '卷笔刀', emoji: '🔪'}, {en: 'notebook', zh: '笔记本', emoji: '📓'},
-                ]},
-                { id: 2, name: '颜色', words: [
-                    {en: 'red', zh: '红色', emoji: '🔴'}, {en: 'yellow', zh: '黄色', emoji: '🟡'},
-                    {en: 'green', zh: '绿色', emoji: '🟢'}, {en: 'blue', zh: '蓝色', emoji: '🔵'},
-                    {en: 'brown', zh: '棕色', emoji: '🟤'}, {en: 'white', zh: '白色', emoji: '⚪'},
-                    {en: 'black', zh: '黑色', emoji: '⚫'}, {en: 'orange', zh: '橙色', emoji: '🟠'},
-                    {en: 'pink', zh: '粉色', emoji: '🩷'}, {en: 'purple', zh: '紫色', emoji: '🟣'},
-                ]},
-                { id: 3, name: '身体', words: [
-                    {en: 'face', zh: '脸', emoji: '😊'}, {en: 'ear', zh: '耳朵', emoji: '👂'},
-                    {en: 'eye', zh: '眼睛', emoji: '👁️'}, {en: 'nose', zh: '鼻子', emoji: '👃'},
-                    {en: 'mouth', zh: '嘴巴', emoji: '👄'}, {en: 'arm', zh: '手臂', emoji: '💪'},
-                    {en: 'hand', zh: '手', emoji: '✋'}, {en: 'head', zh: '头', emoji: '🗣️'},
-                    {en: 'body', zh: '身体', emoji: '🧍'}, {en: 'leg', zh: '腿', emoji: '🦵'},
-                    {en: 'foot', zh: '脚', emoji: '🦶'},
-                ]},
-                { id: 4, name: '动物', words: [
-                    {en: 'duck', zh: '鸭子', emoji: '🦆'}, {en: 'pig', zh: '猪', emoji: '🐷'},
-                    {en: 'cat', zh: '猫', emoji: '🐱'}, {en: 'bear', zh: '熊', emoji: '🐻'},
-                    {en: 'dog', zh: '狗', emoji: '🐶'}, {en: 'elephant', zh: '大象', emoji: '🐘'},
-                    {en: 'monkey', zh: '猴子', emoji: '🐵'}, {en: 'bird', zh: '鸟', emoji: '🐦'},
-                    {en: 'tiger', zh: '老虎', emoji: '🐯'}, {en: 'panda', zh: '熊猫', emoji: '🐼'},
-                    {en: 'zoo', zh: '动物园', emoji: '🏛️'},
-                ]},
-                { id: 5, name: '食物', words: [
-                    {en: 'bread', zh: '面包', emoji: '🍞'}, {en: 'juice', zh: '果汁', emoji: '🧃'},
-                    {en: 'egg', zh: '鸡蛋', emoji: '🥚'}, {en: 'milk', zh: '牛奶', emoji: '🥛'},
-                    {en: 'water', zh: '水', emoji: '💧'}, {en: 'cake', zh: '蛋糕', emoji: '🎂'},
-                    {en: 'fish', zh: '鱼', emoji: '🐟'}, {en: 'rice', zh: '米饭', emoji: '🍚'},
-                    {en: 'noodles', zh: '面条', emoji: '🍜'}, {en: 'chicken', zh: '鸡肉', emoji: '🍗'},
-                ]},
-                { id: 6, name: '数字', words: [
-                    {en: 'one', zh: '一', emoji: '1️⃣'}, {en: 'two', zh: '二', emoji: '2️⃣'},
-                    {en: 'three', zh: '三', emoji: '3️⃣'}, {en: 'four', zh: '四', emoji: '4️⃣'},
-                    {en: 'five', zh: '五', emoji: '5️⃣'}, {en: 'six', zh: '六', emoji: '6️⃣'},
-                    {en: 'seven', zh: '七', emoji: '7️⃣'}, {en: 'eight', zh: '八', emoji: '8️⃣'},
-                    {en: 'nine', zh: '九', emoji: '9️⃣'}, {en: 'ten', zh: '十', emoji: '🔟'},
-                ]},
-            ]
-        },
-        '三下': {
-            name: '三年级下册',
-            units: [
-                { id: 1, name: '国家', words: [
-                    {en: 'UK', zh: '英国', emoji: '🇬🇧'}, {en: 'Canada', zh: '加拿大', emoji: '🇨🇦'},
-                    {en: 'USA', zh: '美国', emoji: '🇺🇸'}, {en: 'China', zh: '中国', emoji: '🇨🇳'},
-                    {en: 'Australia', zh: '澳大利亚', emoji: '🇦🇺'}, {en: 'student', zh: '学生', emoji: '🧑‍🎓'},
-                    {en: 'teacher', zh: '老师', emoji: '👩‍🏫'}, {en: 'she', zh: '她', emoji: '👩'},
-                    {en: 'he', zh: '他', emoji: '👨'}, {en: 'pupil', zh: '小学生', emoji: '🧒'},
-                ]},
-                { id: 2, name: '家庭', words: [
-                    {en: 'father', zh: '父亲', emoji: '👨'}, {en: 'mother', zh: '母亲', emoji: '👩'},
-                    {en: 'brother', zh: '兄弟', emoji: '👦'}, {en: 'sister', zh: '姐妹', emoji: '👧'},
-                    {en: 'grandpa', zh: '爷爷', emoji: '👴'}, {en: 'grandma', zh: '奶奶', emoji: '👵'},
-                    {en: 'family', zh: '家庭', emoji: '👪'}, {en: 'man', zh: '男人', emoji: '🧑'},
-                    {en: 'woman', zh: '女人', emoji: '👩'}, {en: 'baby', zh: '婴儿', emoji: '👶'},
-                ]},
-                { id: 3, name: '描述', words: [
-                    {en: 'thin', zh: '瘦的', emoji: '🧵'}, {en: 'fat', zh: '胖的', emoji: '🐷'},
-                    {en: 'tall', zh: '高的', emoji: '📏'}, {en: 'short', zh: '矮的', emoji: '📐'},
-                    {en: 'long', zh: '长的', emoji: '↔️'}, {en: 'small', zh: '小的', emoji: '🐭'},
-                    {en: 'big', zh: '大的', emoji: '🐘'}, {en: 'giraffe', zh: '长颈鹿', emoji: '🦒'},
-                    {en: 'children', zh: '孩子们', emoji: '👧👦'}, {en: 'tail', zh: '尾巴', emoji: '🦊'},
-                ]},
-                { id: 4, name: '位置', words: [
-                    {en: 'on', zh: '在…上', emoji: '⬆️'}, {en: 'in', zh: '在…里', emoji: '📥'},
-                    {en: 'under', zh: '在…下', emoji: '⬇️'}, {en: 'behind', zh: '在…后', emoji: '⬅️'},
-                    {en: 'chair', zh: '椅子', emoji: '🪑'}, {en: 'desk', zh: '书桌', emoji: '🪹'},
-                    {en: 'cap', zh: '帽子', emoji: '🧢'}, {en: 'ball', zh: '球', emoji: '⚽'},
-                    {en: 'car', zh: '小汽车', emoji: '🚗'}, {en: 'boat', zh: '小船', emoji: '⛵'},
-                    {en: 'map', zh: '地图', emoji: '🗺️'}, {en: 'toy', zh: '玩具', emoji: '🧸'},
-                    {en: 'box', zh: '盒子', emoji: '📦'},
-                ]},
-                { id: 5, name: '水果', words: [
-                    {en: 'peach', zh: '桃子', emoji: '🍑'}, {en: 'pear', zh: '梨', emoji: '🍐'},
-                    {en: 'orange', zh: '橙子', emoji: '🍊'}, {en: 'watermelon', zh: '西瓜', emoji: '🍉'},
-                    {en: 'apple', zh: '苹果', emoji: '🍎'}, {en: 'banana', zh: '香蕉', emoji: '🍌'},
-                    {en: 'strawberry', zh: '草莓', emoji: '🍓'}, {en: 'grape', zh: '葡萄', emoji: '🍇'},
-                    {en: 'fruit', zh: '水果', emoji: '🍒'},
-                ]},
-                { id: 6, name: '数字', words: [
-                    {en: 'eleven', zh: '十一', emoji: '1️⃣1️⃣'}, {en: 'twelve', zh: '十二', emoji: '1️⃣2️⃣'},
-                    {en: 'thirteen', zh: '十三', emoji: '1️⃣3️⃣'}, {en: 'fourteen', zh: '十四', emoji: '1️⃣4️⃣'},
-                    {en: 'fifteen', zh: '十五', emoji: '1️⃣5️⃣'}, {en: 'sixteen', zh: '十六', emoji: '1️⃣6️⃣'},
-                    {en: 'seventeen', zh: '十七', emoji: '1️⃣7️⃣'}, {en: 'eighteen', zh: '十八', emoji: '1️⃣8️⃣'},
-                    {en: 'nineteen', zh: '十九', emoji: '1️⃣9️⃣'}, {en: 'twenty', zh: '二十', emoji: '2️⃣0️⃣'},
-                ]},
-            ]
-        },
-        '四上': {
-            name: '四年级上册',
-            units: [
-                { id: 1, name: '教室', words: [
-                    {en: 'classroom', zh: '教室', emoji: '🏫'}, {en: 'window', zh: '窗户', emoji: '🪟'},
-                    {en: 'door', zh: '门', emoji: '🚪'}, {en: 'picture', zh: '图画', emoji: '🖼️'},
-                    {en: 'board', zh: '黑板', emoji: '📋'}, {en: 'light', zh: '灯', emoji: '💡'},
-                    {en: 'fan', zh: '风扇', emoji: '🌀'}, {en: 'floor', zh: '地板', emoji: '🏠'},
-                    {en: 'wall', zh: '墙', emoji: '🧱'}, {en: 'computer', zh: '电脑', emoji: '💻'},
-                    {en: 'teacher\'s desk', zh: '讲台', emoji: '🪹'},
-                ]},
-                { id: 2, name: '书包', words: [
-                    {en: 'schoolbag', zh: '书包', emoji: '🎒'}, {en: 'math book', zh: '数学书', emoji: '📐'},
-                    {en: 'English book', zh: '英语书', emoji: '📘'}, {en: 'Chinese book', zh: '语文书', emoji: '📕'},
-                    {en: 'storybook', zh: '故事书', emoji: '📖'}, {en: 'notebook', zh: '笔记本', emoji: '📓'},
-                    {en: 'candy', zh: '糖果', emoji: '🍬'}, {en: 'toy', zh: '玩具', emoji: '🧸'},
-                    {en: 'key', zh: '钥匙', emoji: '🔑'},
-                ]},
-                { id: 3, name: '朋友', words: [
-                    {en: 'strong', zh: '强壮的', emoji: '💪'}, {en: 'friendly', zh: '友好的', emoji: '🤝'},
-                    {en: 'quiet', zh: '安静的', emoji: '🤫'}, {en: 'hair', zh: '头发', emoji: '💇'},
-                    {en: 'shoe', zh: '鞋', emoji: '👟'}, {en: 'glasses', zh: '眼镜', emoji: '👓'},
-                    {en: 'hat', zh: '帽子', emoji: '🎩'}, {en: 'his', zh: '他的', emoji: '👨'},
-                    {en: 'her', zh: '她的', emoji: '👩'}, {en: 'right', zh: '右边', emoji: '➡️'},
-                    {en: 'left', zh: '左边', emoji: '⬅️'},
-                ]},
-                { id: 4, name: '房间', words: [
-                    {en: 'bedroom', zh: '卧室', emoji: '🛏️'}, {en: 'living room', zh: '客厅', emoji: '🛋️'},
-                    {en: 'study', zh: '书房', emoji: '📚'}, {en: 'kitchen', zh: '厨房', emoji: '🍳'},
-                    {en: 'bathroom', zh: '浴室', emoji: '🚿'}, {en: 'bed', zh: '床', emoji: '🛏️'},
-                    {en: 'table', zh: '桌子', emoji: '🪑'}, {en: 'sofa', zh: '沙发', emoji: '🛋️'},
-                    {en: 'fridge', zh: '冰箱', emoji: '🧊'}, {en: 'phone', zh: '电话', emoji: '📞'},
-                ]},
-                { id: 5, name: '餐饮', words: [
-                    {en: 'beef', zh: '牛肉', emoji: '🥩'}, {en: 'chicken', zh: '鸡肉', emoji: '🍗'},
-                    {en: 'noodles', zh: '面条', emoji: '🍜'}, {en: 'soup', zh: '汤', emoji: '🍲'},
-                    {en: 'vegetable', zh: '蔬菜', emoji: '🥬'}, {en: 'chopsticks', zh: '筷子', emoji: '🥢'},
-                    {en: 'bowl', zh: '碗', emoji: '🥣'}, {en: 'fork', zh: '叉子', emoji: '🍴'},
-                    {en: 'knife', zh: '刀', emoji: '🔪'}, {en: 'spoon', zh: '勺子', emoji: '🥄'},
-                    {en: 'dinner', zh: '晚餐', emoji: '🍽️'},
-                ]},
-                { id: 6, name: '职业', words: [
-                    {en: 'parents', zh: '父母', emoji: '👪'}, {en: 'uncle', zh: '叔叔', emoji: '👨'},
-                    {en: 'aunt', zh: '阿姨', emoji: '👩'}, {en: 'doctor', zh: '医生', emoji: '👨‍⚕️'},
-                    {en: 'farmer', zh: '农民', emoji: '👨‍🌾'}, {en: 'nurse', zh: '护士', emoji: '👩‍⚕️'},
-                    {en: 'cook', zh: '厨师', emoji: '👨‍🍳'}, {en: 'driver', zh: '司机', emoji: '🚗'},
-                    {en: 'football player', zh: '足球运动员', emoji: '⚽'},
-                ]},
-            ]
-        }
-    };
+const VOCAB_DATA = [
+  {
+    "unit": "三年级上册Unit  1 Making friends",
+    "count": 18,
+    "words": [
+      {
+        "en": "name",
+        "cn": "名字"
+      },
+      {
+        "en": "nice",
+        "cn": "令人愉快的；友好的"
+      },
+      {
+        "en": "ear",
+        "cn": "耳朵"
+      },
+      {
+        "en": "hand",
+        "cn": "手"
+      },
+      {
+        "en": "eye",
+        "cn": "眼睛"
+      },
+      {
+        "en": "mouth",
+        "cn": "嘴"
+      },
+      {
+        "en": "arm",
+        "cn": "胳膊"
+      },
+      {
+        "en": "can",
+        "cn": "可以"
+      },
+      {
+        "en": "share",
+        "cn": "分享"
+      },
+      {
+        "en": "smile",
+        "cn": "微笑；笑"
+      },
+      {
+        "en": "listen",
+        "cn": "听；倾听"
+      },
+      {
+        "en": "help",
+        "cn": "帮助"
+      },
+      {
+        "en": "say",
+        "cn": "说；讲"
+      },
+      {
+        "en": "and",
+        "cn": "和；与"
+      },
+      {
+        "en": "goodbye",
+        "cn": "再见"
+      },
+      {
+        "en": "toy",
+        "cn": "玩具"
+      },
+      {
+        "en": "friend",
+        "cn": "朋友"
+      },
+      {
+        "en": "good",
+        "cn": "好的"
+      }
+    ]
+  },
+  {
+    "unit": "三年级上册Unit  2 My family",
+    "count": 20,
+    "words": [
+      {
+        "en": "mum",
+        "cn": "（口语）妈妈"
+      },
+      {
+        "en": "dad",
+        "cn": "（口语）爸爸；爹爹"
+      },
+      {
+        "en": "grandma",
+        "cn": "奶奶；姥姥"
+      },
+      {
+        "en": "grandpa",
+        "cn": "爷爷；姥爷"
+      },
+      {
+        "en": "grandfather",
+        "cn": "（外）祖父；爷爷；姥爷；外公"
+      },
+      {
+        "en": "grandmother",
+        "cn": "（外）祖母；奶奶；姥姥；外婆"
+      },
+      {
+        "en": "mother",
+        "cn": "母亲；妈妈"
+      },
+      {
+        "en": "father",
+        "cn": "父亲；爸爸"
+      },
+      {
+        "en": "me",
+        "cn": "我"
+      },
+      {
+        "en": "sister",
+        "cn": "姐；妹"
+      },
+      {
+        "en": "family",
+        "cn": "家；家庭"
+      },
+      {
+        "en": "have",
+        "cn": "有"
+      },
+      {
+        "en": "big",
+        "cn": "大的"
+      },
+      {
+        "en": "cousin",
+        "cn": "堂（表）兄弟；堂（表）姐妹"
+      },
+      {
+        "en": "brother",
+        "cn": "哥；弟"
+      },
+      {
+        "en": "baby",
+        "cn": "婴儿"
+      },
+      {
+        "en": "uncle",
+        "cn": "伯父；叔父；舅父；姑父；姨父"
+      },
+      {
+        "en": "aunt",
+        "cn": "伯母；婶母；舅母；姑母；姨母"
+      },
+      {
+        "en": "some",
+        "cn": "一些"
+      },
+      {
+        "en": "small",
+        "cn": "小的"
+      }
+    ]
+  },
+  {
+    "unit": "三年级上册Unit  3 Animals",
+    "count": 22,
+    "words": [
+      {
+        "en": "like",
+        "cn": "喜欢"
+      },
+      {
+        "en": "dog",
+        "cn": "狗"
+      },
+      {
+        "en": "pet",
+        "cn": "宠物"
+      },
+      {
+        "en": "cat",
+        "cn": "猫"
+      },
+      {
+        "en": "fish",
+        "cn": "鱼；鱼肉"
+      },
+      {
+        "en": "bird",
+        "cn": "鸟"
+      },
+      {
+        "en": "rabbit",
+        "cn": "兔"
+      },
+      {
+        "en": "go",
+        "cn": "去；走"
+      },
+      {
+        "en": "zoo",
+        "cn": "动物园"
+      },
+      {
+        "en": "fox",
+        "cn": "狐狸"
+      },
+      {
+        "en": "Miss",
+        "cn": "老师；女士"
+      },
+      {
+        "en": "panda",
+        "cn": "大熊猫"
+      },
+      {
+        "en": "red panda",
+        "cn": "小熊猫"
+      },
+      {
+        "en": "cute",
+        "cn": "可爱的"
+      },
+      {
+        "en": "monkey",
+        "cn": "猴子"
+      },
+      {
+        "en": "tiger",
+        "cn": "老虎"
+      },
+      {
+        "en": "elephant",
+        "cn": "大象"
+      },
+      {
+        "en": "lion",
+        "cn": "狮子"
+      },
+      {
+        "en": "animal",
+        "cn": "动物"
+      },
+      {
+        "en": "giraffe",
+        "cn": "长颈鹿"
+      },
+      {
+        "en": "tall",
+        "cn": "高的"
+      },
+      {
+        "en": "fast",
+        "cn": "快的"
+      }
+    ]
+  },
+  {
+    "unit": "三年级上册Unit  4 Fruit and farm",
+    "count": 17,
+    "words": [
+      {
+        "en": "apple",
+        "cn": "苹果"
+      },
+      {
+        "en": "banana",
+        "cn": "香蕉"
+      },
+      {
+        "en": "farm",
+        "cn": "农场"
+      },
+      {
+        "en": "air",
+        "cn": "空气"
+      },
+      {
+        "en": "orange",
+        "cn": "橙子；柑橘"
+      },
+      {
+        "en": "grape",
+        "cn": "葡萄"
+      },
+      {
+        "en": "school",
+        "cn": "学校"
+      },
+      {
+        "en": "garden",
+        "cn": "花园"
+      },
+      {
+        "en": "need",
+        "cn": "需要"
+      },
+      {
+        "en": "water",
+        "cn": "给…… 浇水；水"
+      },
+      {
+        "en": "flower",
+        "cn": "花；花朵"
+      },
+      {
+        "en": "grass",
+        "cn": "草；草地"
+      },
+      {
+        "en": "plant",
+        "cn": "种植；植物"
+      },
+      {
+        "en": "green",
+        "cn": "绿色；绿色的"
+      },
+      {
+        "en": "tree",
+        "cn": "树"
+      },
+      {
+        "en": "sun",
+        "cn": "太阳"
+      },
+      {
+        "en": "them",
+        "cn": "他们；她们；它们"
+      }
+    ]
+  },
+  {
+    "unit": "三年级上册Unit  5 Colours",
+    "count": 14,
+    "words": [
+      {
+        "en": "colour",
+        "cn": "颜色"
+      },
+      {
+        "en": "red",
+        "cn": "红色；红色的"
+      },
+      {
+        "en": "green",
+        "cn": "绿色；绿色的"
+      },
+      {
+        "en": "blue",
+        "cn": "蓝色；蓝色的"
+      },
+      {
+        "en": "brown",
+        "cn": "棕色；棕色的"
+      },
+      {
+        "en": "yellow",
+        "cn": "黄色；黄色的"
+      },
+      {
+        "en": "bee",
+        "cn": "蜜蜂"
+      },
+      {
+        "en": "pink",
+        "cn": "粉色；粉色的"
+      },
+      {
+        "en": "white",
+        "cn": "白色；白色的"
+      },
+      {
+        "en": "purple",
+        "cn": "紫色；紫色的"
+      },
+      {
+        "en": "bear",
+        "cn": "熊"
+      },
+      {
+        "en": "duck",
+        "cn": "鸭子"
+      },
+      {
+        "en": "sea",
+        "cn": "海；海洋"
+      },
+      {
+        "en": "draw",
+        "cn": "画"
+      }
+    ]
+  },
+  {
+    "unit": "三年级上册Unit  6 Numbers",
+    "count": 16,
+    "words": [
+      {
+        "en": "old",
+        "cn": "（多少）岁；年纪"
+      },
+      {
+        "en": "year",
+        "cn": "年"
+      },
+      {
+        "en": "five",
+        "cn": "五"
+      },
+      {
+        "en": "one",
+        "cn": "一"
+      },
+      {
+        "en": "two",
+        "cn": "二"
+      },
+      {
+        "en": "three",
+        "cn": "三"
+      },
+      {
+        "en": "four",
+        "cn": "四"
+      },
+      {
+        "en": "six",
+        "cn": "六"
+      },
+      {
+        "en": "seven",
+        "cn": "七"
+      },
+      {
+        "en": "eight",
+        "cn": "八"
+      },
+      {
+        "en": "nine",
+        "cn": "九"
+      },
+      {
+        "en": "ten",
+        "cn": "十"
+      },
+      {
+        "en": "o’clock",
+        "cn": "（表示整点）…… 点钟"
+      },
+      {
+        "en": "cut",
+        "cn": "切块"
+      },
+      {
+        "en": "eat",
+        "cn": "吃"
+      },
+      {
+        "en": "cake",
+        "cn": "蛋糕"
+      }
+    ]
+  },
+  {
+    "unit": "三年级下册Unit  1 Meeting new people",
+    "count": 23,
+    "words": [
+      {
+        "en": "where",
+        "cn": "在哪里；到哪里"
+      },
+      {
+        "en": "from",
+        "cn": "来自；从…… 来"
+      },
+      {
+        "en": "about",
+        "cn": "大约；左右"
+      },
+      {
+        "en": "today",
+        "cn": "今天"
+      },
+      {
+        "en": "teacher",
+        "cn": "教师"
+      },
+      {
+        "en": "student",
+        "cn": "学生"
+      },
+      {
+        "en": "after",
+        "cn": "在…… 后面"
+      },
+      {
+        "en": "who",
+        "cn": "谁；什么人"
+      },
+      {
+        "en": "girl",
+        "cn": "女孩"
+      },
+      {
+        "en": "neighbour",
+        "cn": "邻居"
+      },
+      {
+        "en": "boy",
+        "cn": "男孩"
+      },
+      {
+        "en": "woman",
+        "cn": "成年女子；妇女"
+      },
+      {
+        "en": "man",
+        "cn": "成年男子；男人"
+      },
+      {
+        "en": "Mr",
+        "cn": "先生"
+      },
+      {
+        "en": "classmate",
+        "cn": "同班同学"
+      },
+      {
+        "en": "he",
+        "cn": "他"
+      },
+      {
+        "en": "English",
+        "cn": "英语；英语的"
+      },
+      {
+        "en": "she",
+        "cn": "她"
+      },
+      {
+        "en": "very",
+        "cn": "很；非常"
+      },
+      {
+        "en": "UK",
+        "cn": "英国"
+      },
+      {
+        "en": "China",
+        "cn": "中国"
+      },
+      {
+        "en": "Canada",
+        "cn": "加拿大"
+      },
+      {
+        "en": "USA",
+        "cn": "美国"
+      }
+    ]
+  },
+  {
+    "unit": "三年级下册Unit  2 Looks",
+    "count": 21,
+    "words": [
+      {
+        "en": "has",
+        "cn": "有（have 的第三人称单数形式）"
+      },
+      {
+        "en": "long",
+        "cn": "长的"
+      },
+      {
+        "en": "body",
+        "cn": "身体"
+      },
+      {
+        "en": "short",
+        "cn": "短的；矮的"
+      },
+      {
+        "en": "fat",
+        "cn": "胖的"
+      },
+      {
+        "en": "thin",
+        "cn": "瘦的"
+      },
+      {
+        "en": "leg",
+        "cn": "腿"
+      },
+      {
+        "en": "slow",
+        "cn": "慢的"
+      },
+      {
+        "en": "tail",
+        "cn": "尾巴"
+      },
+      {
+        "en": "her",
+        "cn": "她的"
+      },
+      {
+        "en": "all",
+        "cn": "所有；全部"
+      },
+      {
+        "en": "picture",
+        "cn": "图片；照片"
+      },
+      {
+        "en": "card",
+        "cn": "贺卡；卡片"
+      },
+      {
+        "en": "sing",
+        "cn": "唱"
+      },
+      {
+        "en": "dance",
+        "cn": "跳舞"
+      },
+      {
+        "en": "face",
+        "cn": "脸"
+      },
+      {
+        "en": "so",
+        "cn": "这么；那么"
+      },
+      {
+        "en": "talk",
+        "cn": "说话"
+      },
+      {
+        "en": "song",
+        "cn": "歌曲"
+      },
+      {
+        "en": "or",
+        "cn": "或者；还是"
+      },
+      {
+        "en": "much",
+        "cn": "许多；大量"
+      }
+    ]
+  },
+  {
+    "unit": "三年级下册Unit  3 Learning better",
+    "count": 20,
+    "words": [
+      {
+        "en": "eraser",
+        "cn": "橡皮"
+      },
+      {
+        "en": "find",
+        "cn": "找到；找回"
+      },
+      {
+        "en": "ruler",
+        "cn": "直尺"
+      },
+      {
+        "en": "pen",
+        "cn": "钢笔"
+      },
+      {
+        "en": "pencil",
+        "cn": "铅笔"
+      },
+      {
+        "en": "book",
+        "cn": "书"
+      },
+      {
+        "en": "bag",
+        "cn": "包"
+      },
+      {
+        "en": "paper",
+        "cn": "纸"
+      },
+      {
+        "en": "these",
+        "cn": "这些"
+      },
+      {
+        "en": "see",
+        "cn": "看见"
+      },
+      {
+        "en": "smell",
+        "cn": "闻"
+      },
+      {
+        "en": "taste",
+        "cn": "尝"
+      },
+      {
+        "en": "hear",
+        "cn": "听见"
+      },
+      {
+        "en": "touch",
+        "cn": "触摸"
+      },
+      {
+        "en": "sense",
+        "cn": "感觉官能"
+      },
+      {
+        "en": "tongue",
+        "cn": "舌头"
+      },
+      {
+        "en": "nose",
+        "cn": "鼻子"
+      },
+      {
+        "en": "class",
+        "cn": "课；班级"
+      },
+      {
+        "en": "in class",
+        "cn": "在课堂上"
+      },
+      {
+        "en": "computer",
+        "cn": "电脑"
+      }
+    ]
+  },
+  {
+    "unit": "三年级下册Unit  4 Food",
+    "count": 16,
+    "words": [
+      {
+        "en": "breakfast",
+        "cn": "早餐"
+      },
+      {
+        "en": "time",
+        "cn": "时间"
+      },
+      {
+        "en": "egg",
+        "cn": "鸡蛋"
+      },
+      {
+        "en": "milk",
+        "cn": "牛奶"
+      },
+      {
+        "en": "noodle",
+        "cn": "面条"
+      },
+      {
+        "en": "juice",
+        "cn": "果汁"
+      },
+      {
+        "en": "rice",
+        "cn": "米饭"
+      },
+      {
+        "en": "meat",
+        "cn": "肉"
+      },
+      {
+        "en": "vegetable",
+        "cn": "蔬菜"
+      },
+      {
+        "en": "healthy",
+        "cn": "健康的"
+      },
+      {
+        "en": "plate",
+        "cn": "盘子"
+      },
+      {
+        "en": "soup",
+        "cn": "汤"
+      },
+      {
+        "en": "fruit",
+        "cn": "水果"
+      },
+      {
+        "en": "colourful",
+        "cn": "五彩缤纷的"
+      },
+      {
+        "en": "candy",
+        "cn": "糖果"
+      },
+      {
+        "en": "yummy",
+        "cn": "好吃的"
+      }
+    ]
+  },
+  {
+    "unit": "三年级下册Unit  5 Toys",
+    "count": 11,
+    "words": [
+      {
+        "en": "at",
+        "cn": "在（某处）"
+      },
+      {
+        "en": "boat",
+        "cn": "小船"
+      },
+      {
+        "en": "cool",
+        "cn": "酷的；绝妙的"
+      },
+      {
+        "en": "keep",
+        "cn": "保有；留着"
+      },
+      {
+        "en": "home",
+        "cn": "家"
+      },
+      {
+        "en": "ball",
+        "cn": "球"
+      },
+      {
+        "en": "doll",
+        "cn": "玩偶"
+      },
+      {
+        "en": "car",
+        "cn": "小汽车"
+      },
+      {
+        "en": "on",
+        "cn": "在…… 上"
+      },
+      {
+        "en": "shelf",
+        "cn": "架子"
+      },
+      {
+        "en": "in",
+        "cn": "在…… 里"
+      }
+    ]
+  },
+  {
+    "unit": "三年级下册Unit  6 Numbers again",
+    "count": 12,
+    "words": [
+      {
+        "en": "eleven",
+        "cn": "十一"
+      },
+      {
+        "en": "twelve",
+        "cn": "十二"
+      },
+      {
+        "en": "thirteen",
+        "cn": "十三"
+      },
+      {
+        "en": "fourteen",
+        "cn": "十四"
+      },
+      {
+        "en": "fifteen",
+        "cn": "十五"
+      },
+      {
+        "en": "sixteen",
+        "cn": "十六"
+      },
+      {
+        "en": "seventeen",
+        "cn": "十七"
+      },
+      {
+        "en": "eighteen",
+        "cn": "十八"
+      },
+      {
+        "en": "nineteen",
+        "cn": "十九"
+      },
+      {
+        "en": "twenty",
+        "cn": "二十"
+      },
+      {
+        "en": "kite",
+        "cn": "风筝"
+      },
+      {
+        "en": "beautiful",
+        "cn": "美丽的"
+      }
+    ]
+  },
+  {
+    "unit": "五年级上册Unit  1 Different friends",
+    "count": 24,
+    "words": [
+      {
+        "en": "team",
+        "cn": "队；组"
+      },
+      {
+        "en": "player",
+        "cn": "运动员"
+      },
+      {
+        "en": "him",
+        "cn": "他"
+      },
+      {
+        "en": "lovely",
+        "cn": "可爱的"
+      },
+      {
+        "en": "clever",
+        "cn": "聪明的"
+      },
+      {
+        "en": "young",
+        "cn": "年轻的"
+      },
+      {
+        "en": "hard-working",
+        "cn": "努力的"
+      },
+      {
+        "en": "science",
+        "cn": "科学"
+      },
+      {
+        "en": "robot",
+        "cn": "机器人"
+      },
+      {
+        "en": "jump",
+        "cn": "跳"
+      },
+      {
+        "en": "rope",
+        "cn": "绳子"
+      },
+      {
+        "en": "piano",
+        "cn": "钢琴"
+      },
+      {
+        "en": "chess",
+        "cn": "国际象棋"
+      },
+      {
+        "en": "well",
+        "cn": "好"
+      },
+      {
+        "en": "really",
+        "cn": "真正地"
+      },
+      {
+        "en": "both",
+        "cn": "两者都"
+      },
+      {
+        "en": "tall",
+        "cn": "高的"
+      },
+      {
+        "en": "strong",
+        "cn": "强壮的"
+      },
+      {
+        "en": "quiet",
+        "cn": "文静的"
+      },
+      {
+        "en": "nice",
+        "cn": "友好的"
+      },
+      {
+        "en": "front",
+        "cn": "前部"
+      },
+      {
+        "en": "easy",
+        "cn": "容易的"
+      },
+      {
+        "en": "star",
+        "cn": "明星"
+      },
+      {
+        "en": "wonderful",
+        "cn": "精彩的"
+      }
+    ]
+  },
+  {
+    "unit": "五年级上册Unit  2 My feelings",
+    "count": 18,
+    "words": [
+      {
+        "en": "sad",
+        "cn": "难过的"
+      },
+      {
+        "en": "matter",
+        "cn": "事情"
+      },
+      {
+        "en": "project",
+        "cn": "项目"
+      },
+      {
+        "en": "centre",
+        "cn": "中心"
+      },
+      {
+        "en": "agree",
+        "cn": "同意"
+      },
+      {
+        "en": "finish",
+        "cn": "完成"
+      },
+      {
+        "en": "Monday",
+        "cn": "星期一"
+      },
+      {
+        "en": "worried",
+        "cn": "担心的"
+      },
+      {
+        "en": "excited",
+        "cn": "兴奋的"
+      },
+      {
+        "en": "wrong",
+        "cn": "错误的"
+      },
+      {
+        "en": "angry",
+        "cn": "生气的"
+      },
+      {
+        "en": "afraid",
+        "cn": "害怕的"
+      },
+      {
+        "en": "parent",
+        "cn": "父母"
+      },
+      {
+        "en": "ask",
+        "cn": "询问"
+      },
+      {
+        "en": "move",
+        "cn": "移动"
+      },
+      {
+        "en": "proud",
+        "cn": "骄傲的"
+      },
+      {
+        "en": "tired",
+        "cn": "疲倦的"
+      },
+      {
+        "en": "happy",
+        "cn": "开心的"
+      }
+    ]
+  },
+  {
+    "unit": "五年级上册Unit  3 Work and play",
+    "count": 34,
+    "words": [
+      {
+        "en": "Monday",
+        "cn": "星期一"
+      },
+      {
+        "en": "Tuesday",
+        "cn": "星期二"
+      },
+      {
+        "en": "Wednesday",
+        "cn": "星期三"
+      },
+      {
+        "en": "Thursday",
+        "cn": "星期四"
+      },
+      {
+        "en": "Friday",
+        "cn": "星期五"
+      },
+      {
+        "en": "Saturday",
+        "cn": "星期六"
+      },
+      {
+        "en": "Sunday",
+        "cn": "星期日"
+      },
+      {
+        "en": "weekend",
+        "cn": "周末"
+      },
+      {
+        "en": "subject",
+        "cn": "学科"
+      },
+      {
+        "en": "English",
+        "cn": "英语；英语课"
+      },
+      {
+        "en": "Chinese",
+        "cn": "语文；语文课"
+      },
+      {
+        "en": "maths",
+        "cn": "数学；数学课"
+      },
+      {
+        "en": "music",
+        "cn": "音乐；音乐课"
+      },
+      {
+        "en": "PE",
+        "cn": "体育；体育课"
+      },
+      {
+        "en": "art",
+        "cn": "美术；美术课"
+      },
+      {
+        "en": "science",
+        "cn": "科学；科学课"
+      },
+      {
+        "en": "homework",
+        "cn": "家庭作业"
+      },
+      {
+        "en": "class",
+        "cn": "课；班级"
+      },
+      {
+        "en": "favourite",
+        "cn": "最喜欢的"
+      },
+      {
+        "en": "activity",
+        "cn": "活动"
+      },
+      {
+        "en": "cook",
+        "cn": "烹饪；做饭"
+      },
+      {
+        "en": "park",
+        "cn": "公园"
+      },
+      {
+        "en": "football",
+        "cn": "足球"
+      },
+      {
+        "en": "pipa",
+        "cn": "琵琶"
+      },
+      {
+        "en": "visit",
+        "cn": "看望；拜访"
+      },
+      {
+        "en": "chess",
+        "cn": "国际象棋"
+      },
+      {
+        "en": "read",
+        "cn": "读；阅读"
+      },
+      {
+        "en": "lesson",
+        "cn": "课；课程"
+      },
+      {
+        "en": "grandparents",
+        "cn": "祖父母；外祖父母"
+      },
+      {
+        "en": "club",
+        "cn": "俱乐部"
+      },
+      {
+        "en": "clean",
+        "cn": "打扫；清洁"
+      },
+      {
+        "en": "classroom",
+        "cn": "教室"
+      },
+      {
+        "en": "schedule",
+        "cn": "日程安排；计划表"
+      },
+      {
+        "en": "break",
+        "cn": "休息；课间休息"
+      }
+    ]
+  },
+  {
+    "unit": "五年级上册Unit  4 Healthy habits",
+    "count": 20,
+    "words": [
+      {
+        "en": "habit",
+        "cn": "习惯"
+      },
+      {
+        "en": "flu",
+        "cn": "流行性感冒；流感"
+      },
+      {
+        "en": "exercise",
+        "cn": "锻炼；训练"
+      },
+      {
+        "en": "rest",
+        "cn": "休息；放松"
+      },
+      {
+        "en": "enough",
+        "cn": "足够的；充足的"
+      },
+      {
+        "en": "else",
+        "cn": "其他的；别的"
+      },
+      {
+        "en": "should",
+        "cn": "（提出建议）该，可以"
+      },
+      {
+        "en": "stay",
+        "cn": "待；保持；继续是"
+      },
+      {
+        "en": "check",
+        "cn": "查看；查明"
+      },
+      {
+        "en": "brush",
+        "cn": "（用刷子）刷"
+      },
+      {
+        "en": "tooth",
+        "cn": "牙；齿（复数 teeth）"
+      },
+      {
+        "en": "less",
+        "cn": "较少的；更少的"
+      },
+      {
+        "en": "twice",
+        "cn": "两次；两遍"
+      },
+      {
+        "en": "show",
+        "cn": "（电视或广播）节目"
+      },
+      {
+        "en": "phone",
+        "cn": "电话；电话机"
+      },
+      {
+        "en": "take care of",
+        "cn": "爱护；照顾"
+      },
+      {
+        "en": "brush your teeth",
+        "cn": "刷牙"
+      },
+      {
+        "en": "wash your hands",
+        "cn": "洗手"
+      },
+      {
+        "en": "eat breakfast",
+        "cn": "吃早餐"
+      },
+      {
+        "en": "get enough sleep",
+        "cn": "获得充足睡眠"
+      }
+    ]
+  },
+  {
+    "unit": "五年级上册Unit  5 Food we eat",
+    "count": 24,
+    "words": [
+      {
+        "en": "hungry",
+        "cn": "感到饿的"
+      },
+      {
+        "en": "beef",
+        "cn": "牛肉"
+      },
+      {
+        "en": "little",
+        "cn": "少许；一点"
+      },
+      {
+        "en": "dumpling",
+        "cn": "饺子；汤圆"
+      },
+      {
+        "en": "tea",
+        "cn": "茶叶；茶；茶水"
+      },
+      {
+        "en": "hamburger",
+        "cn": "汉堡包"
+      },
+      {
+        "en": "round",
+        "cn": "圆形的；环形的"
+      },
+      {
+        "en": "Mrs",
+        "cn": "太太，夫人"
+      },
+      {
+        "en": "coconut",
+        "cn": "椰子"
+      },
+      {
+        "en": "interesting",
+        "cn": "有趣的"
+      },
+      {
+        "en": "seed",
+        "cn": "种子；籽"
+      },
+      {
+        "en": "pull",
+        "cn": "拔出；抽出"
+      },
+      {
+        "en": "stem",
+        "cn": "（花草的）茎；梗"
+      },
+      {
+        "en": "root",
+        "cn": "根；根茎"
+      },
+      {
+        "en": "lotus",
+        "cn": "莲属植物"
+      },
+      {
+        "en": "lake",
+        "cn": "湖；湖泊"
+      },
+      {
+        "en": "world",
+        "cn": "世界；地球"
+      },
+      {
+        "en": "way",
+        "cn": "方法；途径"
+      },
+      {
+        "en": "different",
+        "cn": "不同的"
+      },
+      {
+        "en": "chicken soup",
+        "cn": "鸡汤"
+      },
+      {
+        "en": "ice cream",
+        "cn": "冰激凌"
+      },
+      {
+        "en": "a little",
+        "cn": "少许；一点"
+      },
+      {
+        "en": "green tea",
+        "cn": "绿茶"
+      },
+      {
+        "en": "vegetable salad",
+        "cn": "蔬菜沙拉"
+      }
+    ]
+  },
+  {
+    "unit": "五年级上册Unit  6 Nature and us",
+    "count": 29,
+    "words": [
+      {
+        "en": "river",
+        "cn": "河；江"
+      },
+      {
+        "en": "nature",
+        "cn": "自然界；大自然"
+      },
+      {
+        "en": "waterfall",
+        "cn": "瀑布"
+      },
+      {
+        "en": "forest",
+        "cn": "森林；林区"
+      },
+      {
+        "en": "famous",
+        "cn": "著名的"
+      },
+      {
+        "en": "mountain",
+        "cn": "高山；山岳"
+      },
+      {
+        "en": "wind",
+        "cn": "风；气流"
+      },
+      {
+        "en": "trip",
+        "cn": "旅行；出行"
+      },
+      {
+        "en": "dangerous",
+        "cn": "有危险的；不安全的"
+      },
+      {
+        "en": "heavy",
+        "cn": "程度大的；严重的"
+      },
+      {
+        "en": "hotel",
+        "cn": "旅馆；旅社"
+      },
+      {
+        "en": "close",
+        "cn": "关；关闭"
+      },
+      {
+        "en": "umbrella",
+        "cn": "伞；雨伞"
+      },
+      {
+        "en": "raincoat",
+        "cn": "雨衣"
+      },
+      {
+        "en": "worry",
+        "cn": "担心；担忧"
+      },
+      {
+        "en": "fine",
+        "cn": "晴朗的"
+      },
+      {
+        "en": "fog",
+        "cn": "雾"
+      },
+      {
+        "en": "flood",
+        "cn": "洪水；水灾"
+      },
+      {
+        "en": "fire",
+        "cn": "火；火灾"
+      },
+      {
+        "en": "know",
+        "cn": "知道；了解"
+      },
+      {
+        "en": "before",
+        "cn": "在…… 之前"
+      },
+      {
+        "en": "go hiking",
+        "cn": "徒步旅行"
+      },
+      {
+        "en": "bring",
+        "cn": "带来；取来"
+      },
+      {
+        "en": "hill",
+        "cn": "山丘；小山"
+      },
+      {
+        "en": "tree",
+        "cn": "树"
+      },
+      {
+        "en": "bridge",
+        "cn": "桥"
+      },
+      {
+        "en": "building",
+        "cn": "建筑物"
+      },
+      {
+        "en": "village",
+        "cn": "村庄；村镇"
+      },
+      {
+        "en": "house",
+        "cn": "房屋；房子"
+      }
+    ]
+  },
+  {
+    "unit": "五年级下册Unit  1 My day",
+    "count": 36,
+    "words": [
+      {
+        "en": "eat breakfast",
+        "cn": "吃早饭"
+      },
+      {
+        "en": "have … class",
+        "cn": "上…… 课"
+      },
+      {
+        "en": "play sports",
+        "cn": "进行体育运动"
+      },
+      {
+        "en": "exercise",
+        "cn": "运动；锻炼"
+      },
+      {
+        "en": "do morning exercises",
+        "cn": "做早操"
+      },
+      {
+        "en": "eat dinner",
+        "cn": "吃晚饭"
+      },
+      {
+        "en": "clean my room",
+        "cn": "打扫房间"
+      },
+      {
+        "en": "go for a walk",
+        "cn": "散步"
+      },
+      {
+        "en": "go shopping",
+        "cn": "购物"
+      },
+      {
+        "en": "take",
+        "cn": "学习；上（课）"
+      },
+      {
+        "en": "dancing",
+        "cn": "跳舞"
+      },
+      {
+        "en": "take a dancing class",
+        "cn": "上舞蹈课"
+      },
+      {
+        "en": "when",
+        "cn": "什么时候"
+      },
+      {
+        "en": "after",
+        "cn": "在…… 后"
+      },
+      {
+        "en": "start",
+        "cn": "开始"
+      },
+      {
+        "en": "usually",
+        "cn": "通常"
+      },
+      {
+        "en": "Spain",
+        "cn": "西班牙"
+      },
+      {
+        "en": "late",
+        "cn": "晚；迟"
+      },
+      {
+        "en": "a.m.",
+        "cn": "午前"
+      },
+      {
+        "en": "p.m.",
+        "cn": "午后"
+      },
+      {
+        "en": "why",
+        "cn": "为什么"
+      },
+      {
+        "en": "shop",
+        "cn": "购物"
+      },
+      {
+        "en": "work",
+        "cn": "工作"
+      },
+      {
+        "en": "last",
+        "cn": "上一个的"
+      },
+      {
+        "en": "sound",
+        "cn": "听起来"
+      },
+      {
+        "en": "also",
+        "cn": "也"
+      },
+      {
+        "en": "busy",
+        "cn": "忙的"
+      },
+      {
+        "en": "need",
+        "cn": "需要"
+      },
+      {
+        "en": "play",
+        "cn": "戏剧"
+      },
+      {
+        "en": "letter",
+        "cn": "信"
+      },
+      {
+        "en": "live",
+        "cn": "居住"
+      },
+      {
+        "en": "island",
+        "cn": "岛"
+      },
+      {
+        "en": "always",
+        "cn": "总是"
+      },
+      {
+        "en": "cave",
+        "cn": "山洞"
+      },
+      {
+        "en": "go swimming",
+        "cn": "去游泳"
+      },
+      {
+        "en": "win",
+        "cn": "获胜"
+      }
+    ]
+  },
+  {
+    "unit": "五年级下册Unit  2 My favourite season",
+    "count": 22,
+    "words": [
+      {
+        "en": "spring",
+        "cn": "春天"
+      },
+      {
+        "en": "summer",
+        "cn": "夏天"
+      },
+      {
+        "en": "autumn",
+        "cn": "秋天"
+      },
+      {
+        "en": "winter",
+        "cn": "冬天"
+      },
+      {
+        "en": "season",
+        "cn": "季节"
+      },
+      {
+        "en": "picnic",
+        "cn": "野餐"
+      },
+      {
+        "en": "go on a picnic",
+        "cn": "去野餐"
+      },
+      {
+        "en": "pick",
+        "cn": "摘"
+      },
+      {
+        "en": "pick apples",
+        "cn": "摘苹果"
+      },
+      {
+        "en": "snowman",
+        "cn": "雪人"
+      },
+      {
+        "en": "make a snowman",
+        "cn": "堆雪人"
+      },
+      {
+        "en": "go swimming",
+        "cn": "去游泳"
+      },
+      {
+        "en": "which",
+        "cn": "哪一个"
+      },
+      {
+        "en": "best",
+        "cn": "最"
+      },
+      {
+        "en": "snow",
+        "cn": "雪"
+      },
+      {
+        "en": "good job",
+        "cn": "做得好"
+      },
+      {
+        "en": "because",
+        "cn": "因为"
+      },
+      {
+        "en": "vacation",
+        "cn": "假期"
+      },
+      {
+        "en": "all",
+        "cn": "完全"
+      },
+      {
+        "en": "pink",
+        "cn": "粉色"
+      },
+      {
+        "en": "lovely",
+        "cn": "可爱的"
+      },
+      {
+        "en": "fall",
+        "cn": "落下；秋天"
+      }
+    ]
+  },
+  {
+    "unit": "五年级下册Unit  3 My school calendar",
+    "count": 33,
+    "words": [
+      {
+        "en": "January",
+        "cn": "一月"
+      },
+      {
+        "en": "February",
+        "cn": "二月"
+      },
+      {
+        "en": "March",
+        "cn": "三月"
+      },
+      {
+        "en": "April",
+        "cn": "四月"
+      },
+      {
+        "en": "May",
+        "cn": "五月"
+      },
+      {
+        "en": "June",
+        "cn": "六月"
+      },
+      {
+        "en": "July",
+        "cn": "七月"
+      },
+      {
+        "en": "August",
+        "cn": "八月"
+      },
+      {
+        "en": "September",
+        "cn": "九月"
+      },
+      {
+        "en": "October",
+        "cn": "十月"
+      },
+      {
+        "en": "November",
+        "cn": "十一月"
+      },
+      {
+        "en": "December",
+        "cn": "十二月"
+      },
+      {
+        "en": "few",
+        "cn": "很少"
+      },
+      {
+        "en": "a few",
+        "cn": "一些"
+      },
+      {
+        "en": "thing",
+        "cn": "事情"
+      },
+      {
+        "en": "meet",
+        "cn": "集会"
+      },
+      {
+        "en": "sports meet",
+        "cn": "运动会"
+      },
+      {
+        "en": "trip",
+        "cn": "旅行"
+      },
+      {
+        "en": "year",
+        "cn": "年"
+      },
+      {
+        "en": "plant",
+        "cn": "种植"
+      },
+      {
+        "en": "contest",
+        "cn": "比赛"
+      },
+      {
+        "en": "the Great Wall",
+        "cn": "长城"
+      },
+      {
+        "en": "national",
+        "cn": "国家的"
+      },
+      {
+        "en": "National Day",
+        "cn": "国庆日"
+      },
+      {
+        "en": "American",
+        "cn": "美国的"
+      },
+      {
+        "en": "Thanksgiving",
+        "cn": "感恩节"
+      },
+      {
+        "en": "Christmas",
+        "cn": "圣诞节"
+      },
+      {
+        "en": "holiday",
+        "cn": "假日"
+      },
+      {
+        "en": "game",
+        "cn": "游戏"
+      },
+      {
+        "en": "roll",
+        "cn": "滚动"
+      },
+      {
+        "en": "Easter",
+        "cn": "复活节"
+      },
+      {
+        "en": "party",
+        "cn": "聚会"
+      },
+      {
+        "en": "chocolate",
+        "cn": "巧克力"
+      }
+    ]
+  },
+  {
+    "unit": "五年级下册Unit  4 When is Easter?",
+    "count": 19,
+    "words": [
+      {
+        "en": "first",
+        "cn": "第一"
+      },
+      {
+        "en": "second",
+        "cn": "第二"
+      },
+      {
+        "en": "third",
+        "cn": "第三"
+      },
+      {
+        "en": "fourth",
+        "cn": "第四"
+      },
+      {
+        "en": "fifth",
+        "cn": "第五"
+      },
+      {
+        "en": "twelfth",
+        "cn": "第十二"
+      },
+      {
+        "en": "twentieth",
+        "cn": "第二十"
+      },
+      {
+        "en": "twenty-first",
+        "cn": "第二十一"
+      },
+      {
+        "en": "twenty-third",
+        "cn": "第二十三"
+      },
+      {
+        "en": "thirtieth",
+        "cn": "第三十"
+      },
+      {
+        "en": "special",
+        "cn": "特殊的"
+      },
+      {
+        "en": "fool",
+        "cn": "蠢人"
+      },
+      {
+        "en": "kitten",
+        "cn": "小猫"
+      },
+      {
+        "en": "diary",
+        "cn": "日记"
+      },
+      {
+        "en": "still",
+        "cn": "仍然"
+      },
+      {
+        "en": "noise",
+        "cn": "噪音"
+      },
+      {
+        "en": "fur",
+        "cn": "皮毛"
+      },
+      {
+        "en": "open",
+        "cn": "开着的"
+      },
+      {
+        "en": "walk",
+        "cn": "行走"
+      }
+    ]
+  },
+  {
+    "unit": "五年级下册Unit  5 Whose dog is it?",
+    "count": 17,
+    "words": [
+      {
+        "en": "mine",
+        "cn": "我的"
+      },
+      {
+        "en": "yours",
+        "cn": "你的"
+      },
+      {
+        "en": "his",
+        "cn": "他的"
+      },
+      {
+        "en": "hers",
+        "cn": "她的"
+      },
+      {
+        "en": "theirs",
+        "cn": "他们的"
+      },
+      {
+        "en": "ours",
+        "cn": "我们的"
+      },
+      {
+        "en": "climbing",
+        "cn": "攀登"
+      },
+      {
+        "en": "eating",
+        "cn": "吃"
+      },
+      {
+        "en": "playing",
+        "cn": "玩"
+      },
+      {
+        "en": "jumping",
+        "cn": "跳"
+      },
+      {
+        "en": "drinking",
+        "cn": "喝"
+      },
+      {
+        "en": "sleeping",
+        "cn": "睡觉"
+      },
+      {
+        "en": "each",
+        "cn": "每一"
+      },
+      {
+        "en": "other",
+        "cn": "其他"
+      },
+      {
+        "en": "each other",
+        "cn": "相互"
+      },
+      {
+        "en": "excited",
+        "cn": "兴奋的"
+      },
+      {
+        "en": "like",
+        "cn": "像…… 一样"
+      }
+    ]
+  },
+  {
+    "unit": "五年级下册Unit  6 Work quietly!",
+    "count": 15,
+    "words": [
+      {
+        "en": "do morning exercises",
+        "cn": "做早操"
+      },
+      {
+        "en": "have … class",
+        "cn": "上课"
+      },
+      {
+        "en": "eat lunch",
+        "cn": "吃午饭"
+      },
+      {
+        "en": "read a book",
+        "cn": "看书"
+      },
+      {
+        "en": "listen to music",
+        "cn": "听音乐"
+      },
+      {
+        "en": "keep",
+        "cn": "保持"
+      },
+      {
+        "en": "keep to the right",
+        "cn": "靠右"
+      },
+      {
+        "en": "keep your desk clean",
+        "cn": "保持桌面整洁"
+      },
+      {
+        "en": "talk quietly",
+        "cn": "小声讲话"
+      },
+      {
+        "en": "turn",
+        "cn": "顺序"
+      },
+      {
+        "en": "take turns",
+        "cn": "按顺序"
+      },
+      {
+        "en": "its",
+        "cn": "它的"
+      },
+      {
+        "en": "show",
+        "cn": "给人看"
+      },
+      {
+        "en": "anything",
+        "cn": "任何事物"
+      },
+      {
+        "en": "else",
+        "cn": "另外"
+      }
+    ]
+  },
+  {
+    "unit": "六年级上册Unit  1 How can I get there?",
+    "count": 25,
+    "words": [
+      {
+        "en": "science",
+        "cn": "科学"
+      },
+      {
+        "en": "museum",
+        "cn": "博物馆"
+      },
+      {
+        "en": "post office",
+        "cn": "邮局"
+      },
+      {
+        "en": "bookstore",
+        "cn": "书店"
+      },
+      {
+        "en": "cinema",
+        "cn": "电影院"
+      },
+      {
+        "en": "hospital",
+        "cn": "医院"
+      },
+      {
+        "en": "crossing",
+        "cn": "十字路口"
+      },
+      {
+        "en": "turn",
+        "cn": "转弯"
+      },
+      {
+        "en": "left",
+        "cn": "左"
+      },
+      {
+        "en": "straight",
+        "cn": "笔直地"
+      },
+      {
+        "en": "right",
+        "cn": "右"
+      },
+      {
+        "en": "ask",
+        "cn": "问"
+      },
+      {
+        "en": "sir",
+        "cn": "先生"
+      },
+      {
+        "en": "interesting",
+        "cn": "有趣的"
+      },
+      {
+        "en": "Italian",
+        "cn": "意大利的"
+      },
+      {
+        "en": "restaurant",
+        "cn": "餐馆"
+      },
+      {
+        "en": "pizza",
+        "cn": "比萨饼"
+      },
+      {
+        "en": "street",
+        "cn": "大街"
+      },
+      {
+        "en": "get",
+        "cn": "到达"
+      },
+      {
+        "en": "GPS",
+        "cn": "全球定位系统"
+      },
+      {
+        "en": "gave",
+        "cn": "提供（give 过去式）"
+      },
+      {
+        "en": "feature",
+        "cn": "特点"
+      },
+      {
+        "en": "follow",
+        "cn": "跟着"
+      },
+      {
+        "en": "far",
+        "cn": "远"
+      },
+      {
+        "en": "tell",
+        "cn": "告诉"
+      }
+    ]
+  },
+  {
+    "unit": "六年级上册Unit  2 Ways to go to school",
+    "count": 29,
+    "words": [
+      {
+        "en": "on foot",
+        "cn": "步行"
+      },
+      {
+        "en": "by",
+        "cn": "乘"
+      },
+      {
+        "en": "bus",
+        "cn": "公共汽车"
+      },
+      {
+        "en": "plane",
+        "cn": "飞机"
+      },
+      {
+        "en": "taxi",
+        "cn": "出租汽车"
+      },
+      {
+        "en": "ship",
+        "cn": "大船"
+      },
+      {
+        "en": "subway",
+        "cn": "地铁"
+      },
+      {
+        "en": "train",
+        "cn": "火车"
+      },
+      {
+        "en": "slow",
+        "cn": "慢的"
+      },
+      {
+        "en": "down",
+        "cn": "减少"
+      },
+      {
+        "en": "slow down",
+        "cn": "慢下来"
+      },
+      {
+        "en": "stop",
+        "cn": "停下"
+      },
+      {
+        "en": "Mrs",
+        "cn": "夫人"
+      },
+      {
+        "en": "early",
+        "cn": "早到的"
+      },
+      {
+        "en": "helmet",
+        "cn": "头盔"
+      },
+      {
+        "en": "must",
+        "cn": "必须"
+      },
+      {
+        "en": "wear",
+        "cn": "戴"
+      },
+      {
+        "en": "attention",
+        "cn": "注意"
+      },
+      {
+        "en": "pay attention to",
+        "cn": "注意"
+      },
+      {
+        "en": "traffic",
+        "cn": "交通"
+      },
+      {
+        "en": "traffic lights",
+        "cn": "交通信号灯"
+      },
+      {
+        "en": "Munich",
+        "cn": "慕尼黑"
+      },
+      {
+        "en": "Germany",
+        "cn": "德国"
+      },
+      {
+        "en": "Alaska",
+        "cn": "阿拉斯加州"
+      },
+      {
+        "en": "sled",
+        "cn": "雪橇"
+      },
+      {
+        "en": "fast",
+        "cn": "快的"
+      },
+      {
+        "en": "ferry",
+        "cn": "轮渡"
+      },
+      {
+        "en": "Papa Westray",
+        "cn": "帕帕韦斯特雷岛"
+      },
+      {
+        "en": "Scotland",
+        "cn": "苏格兰"
+      }
+    ]
+  },
+  {
+    "unit": "六年级上册Unit  3 My weekend plan",
+    "count": 27,
+    "words": [
+      {
+        "en": "visit",
+        "cn": "拜访"
+      },
+      {
+        "en": "film",
+        "cn": "电影"
+      },
+      {
+        "en": "see a film",
+        "cn": "看电影"
+      },
+      {
+        "en": "trip",
+        "cn": "旅行"
+      },
+      {
+        "en": "take a trip",
+        "cn": "去旅行"
+      },
+      {
+        "en": "supermarket",
+        "cn": "超市"
+      },
+      {
+        "en": "evening",
+        "cn": "晚上"
+      },
+      {
+        "en": "tonight",
+        "cn": "今晚"
+      },
+      {
+        "en": "tomorrow",
+        "cn": "明天"
+      },
+      {
+        "en": "next week",
+        "cn": "下周"
+      },
+      {
+        "en": "dictionary",
+        "cn": "词典"
+      },
+      {
+        "en": "comic",
+        "cn": "滑稽的"
+      },
+      {
+        "en": "comic book",
+        "cn": "连环画册"
+      },
+      {
+        "en": "word",
+        "cn": "单词"
+      },
+      {
+        "en": "word book",
+        "cn": "单词书"
+      },
+      {
+        "en": "postcard",
+        "cn": "明信片"
+      },
+      {
+        "en": "lesson",
+        "cn": "课"
+      },
+      {
+        "en": "space",
+        "cn": "太空"
+      },
+      {
+        "en": "travel",
+        "cn": "旅行"
+      },
+      {
+        "en": "half",
+        "cn": "一半"
+      },
+      {
+        "en": "price",
+        "cn": "价格"
+      },
+      {
+        "en": "Mid-Autumn Festival",
+        "cn": "中秋节"
+      },
+      {
+        "en": "together",
+        "cn": "一起"
+      },
+      {
+        "en": "get together",
+        "cn": "聚会"
+      },
+      {
+        "en": "mooncake",
+        "cn": "月饼"
+      },
+      {
+        "en": "poem",
+        "cn": "诗"
+      },
+      {
+        "en": "moon",
+        "cn": "月亮"
+      }
+    ]
+  },
+  {
+    "unit": "六年级上册Unit  4 I have a pen pal",
+    "count": 13,
+    "words": [
+      {
+        "en": "studies",
+        "cn": "学习（study 三单）"
+      },
+      {
+        "en": "puzzle",
+        "cn": "谜"
+      },
+      {
+        "en": "hiking",
+        "cn": "远足"
+      },
+      {
+        "en": "pen pal",
+        "cn": "笔友"
+      },
+      {
+        "en": "hobby",
+        "cn": "业余爱好"
+      },
+      {
+        "en": "jasmine",
+        "cn": "茉莉"
+      },
+      {
+        "en": "idea",
+        "cn": "想法"
+      },
+      {
+        "en": "Canberra",
+        "cn": "堪培拉"
+      },
+      {
+        "en": "amazing",
+        "cn": "令人惊奇的"
+      },
+      {
+        "en": "shall",
+        "cn": "表示征求意见"
+      },
+      {
+        "en": "goal",
+        "cn": "进球"
+      },
+      {
+        "en": "join",
+        "cn": "加入"
+      },
+      {
+        "en": "club",
+        "cn": "俱乐部"
+      }
+    ]
+  },
+  {
+    "unit": "六年级上册Unit  5 What does he do?",
+    "count": 21,
+    "words": [
+      {
+        "en": "factory",
+        "cn": "工厂"
+      },
+      {
+        "en": "worker",
+        "cn": "工人"
+      },
+      {
+        "en": "postman",
+        "cn": "邮递员"
+      },
+      {
+        "en": "businessman",
+        "cn": "商人"
+      },
+      {
+        "en": "police officer",
+        "cn": "警察"
+      },
+      {
+        "en": "fisherman",
+        "cn": "渔民"
+      },
+      {
+        "en": "scientist",
+        "cn": "科学家"
+      },
+      {
+        "en": "pilot",
+        "cn": "飞行员"
+      },
+      {
+        "en": "coach",
+        "cn": "教练"
+      },
+      {
+        "en": "country",
+        "cn": "国家"
+      },
+      {
+        "en": "head teacher",
+        "cn": "校长"
+      },
+      {
+        "en": "sea",
+        "cn": "大海"
+      },
+      {
+        "en": "stay",
+        "cn": "保持"
+      },
+      {
+        "en": "university",
+        "cn": "大学"
+      },
+      {
+        "en": "gym",
+        "cn": "体育馆"
+      },
+      {
+        "en": "if",
+        "cn": "如果"
+      },
+      {
+        "en": "reporter",
+        "cn": "记者"
+      },
+      {
+        "en": "use",
+        "cn": "使用"
+      },
+      {
+        "en": "type",
+        "cn": "打字"
+      },
+      {
+        "en": "quickly",
+        "cn": "迅速地"
+      },
+      {
+        "en": "secretary",
+        "cn": "秘书"
+      }
+    ]
+  },
+  {
+    "unit": "六年级上册Unit  6 How do you feel?",
+    "count": 31,
+    "words": [
+      {
+        "en": "angry",
+        "cn": "生气的"
+      },
+      {
+        "en": "afraid",
+        "cn": "害怕"
+      },
+      {
+        "en": "sad",
+        "cn": "难过的"
+      },
+      {
+        "en": "worried",
+        "cn": "担心的"
+      },
+      {
+        "en": "happy",
+        "cn": "高兴的"
+      },
+      {
+        "en": "see a doctor",
+        "cn": "看病"
+      },
+      {
+        "en": "wear",
+        "cn": "穿"
+      },
+      {
+        "en": "more",
+        "cn": "更多的"
+      },
+      {
+        "en": "deep",
+        "cn": "深的"
+      },
+      {
+        "en": "breath",
+        "cn": "呼吸"
+      },
+      {
+        "en": "take a deep breath",
+        "cn": "深深吸一口气"
+      },
+      {
+        "en": "count",
+        "cn": "数数"
+      },
+      {
+        "en": "count to ten",
+        "cn": "数到十"
+      },
+      {
+        "en": "chase",
+        "cn": "追赶"
+      },
+      {
+        "en": "mice",
+        "cn": "老鼠（复数）"
+      },
+      {
+        "en": "bad",
+        "cn": "坏的"
+      },
+      {
+        "en": "hurt",
+        "cn": "受伤"
+      },
+      {
+        "en": "ill",
+        "cn": "有病"
+      },
+      {
+        "en": "wrong",
+        "cn": "有毛病"
+      },
+      {
+        "en": "should",
+        "cn": "应该"
+      },
+      {
+        "en": "feel",
+        "cn": "觉得"
+      },
+      {
+        "en": "well",
+        "cn": "健康"
+      },
+      {
+        "en": "sit",
+        "cn": "坐"
+      },
+      {
+        "en": "grass",
+        "cn": "草坪"
+      },
+      {
+        "en": "hear",
+        "cn": "听见"
+      },
+      {
+        "en": "ant",
+        "cn": "蚂蚁"
+      },
+      {
+        "en": "worry",
+        "cn": "担心"
+      },
+      {
+        "en": "stuck",
+        "cn": "陷住"
+      },
+      {
+        "en": "mud",
+        "cn": "泥"
+      },
+      {
+        "en": "pull",
+        "cn": "拉"
+      },
+      {
+        "en": "everyone",
+        "cn": "每人"
+      }
+    ]
+  },
+  {
+    "unit": "六年级下册Unit  1 How tall are you?",
+    "count": 20,
+    "words": [
+      {
+        "en": "younger",
+        "cn": "更年轻的"
+      },
+      {
+        "en": "older",
+        "cn": "更年长的"
+      },
+      {
+        "en": "taller",
+        "cn": "更高的"
+      },
+      {
+        "en": "shorter",
+        "cn": "更矮的；更短的"
+      },
+      {
+        "en": "longer",
+        "cn": "更长的"
+      },
+      {
+        "en": "thinner",
+        "cn": "更瘦的"
+      },
+      {
+        "en": "heavier",
+        "cn": "更重的"
+      },
+      {
+        "en": "bigger",
+        "cn": "更大的"
+      },
+      {
+        "en": "smaller",
+        "cn": "更小的"
+      },
+      {
+        "en": "stronger",
+        "cn": "更强壮的"
+      },
+      {
+        "en": "dinosaur",
+        "cn": "恐龙"
+      },
+      {
+        "en": "hall",
+        "cn": "大厅"
+      },
+      {
+        "en": "than",
+        "cn": "比"
+      },
+      {
+        "en": "both",
+        "cn": "两个都"
+      },
+      {
+        "en": "kilogram",
+        "cn": "千克"
+      },
+      {
+        "en": "countryside",
+        "cn": "乡村"
+      },
+      {
+        "en": "lower",
+        "cn": "更低地"
+      },
+      {
+        "en": "shadow",
+        "cn": "影子"
+      },
+      {
+        "en": "smarter",
+        "cn": "更聪明的"
+      },
+      {
+        "en": "become",
+        "cn": "变成"
+      }
+    ]
+  },
+  {
+    "unit": "六年级下册Unit  2 Last weekend",
+    "count": 24,
+    "words": [
+      {
+        "en": "cleaned",
+        "cn": "打扫（clean 过去式）"
+      },
+      {
+        "en": "stayed",
+        "cn": "停留（stay 过去式）"
+      },
+      {
+        "en": "washed",
+        "cn": "洗（wash 过去式）"
+      },
+      {
+        "en": "watched",
+        "cn": "看（watch 过去式）"
+      },
+      {
+        "en": "had",
+        "cn": "患病（have 过去式）"
+      },
+      {
+        "en": "had a cold",
+        "cn": "感冒"
+      },
+      {
+        "en": "slept",
+        "cn": "睡觉（sleep 过去式）"
+      },
+      {
+        "en": "read",
+        "cn": "读（read 过去式）"
+      },
+      {
+        "en": "saw",
+        "cn": "看见（see 过去式）"
+      },
+      {
+        "en": "last",
+        "cn": "最近的"
+      },
+      {
+        "en": "yesterday",
+        "cn": "昨天"
+      },
+      {
+        "en": "before",
+        "cn": "在…… 之前"
+      },
+      {
+        "en": "drank",
+        "cn": "喝（drink 过去式）"
+      },
+      {
+        "en": "show",
+        "cn": "演出"
+      },
+      {
+        "en": "magazine",
+        "cn": "杂志"
+      },
+      {
+        "en": "better",
+        "cn": "更好的"
+      },
+      {
+        "en": "faster",
+        "cn": "更快的"
+      },
+      {
+        "en": "hotel",
+        "cn": "旅馆"
+      },
+      {
+        "en": "fixed",
+        "cn": "修理（fix 过去式）"
+      },
+      {
+        "en": "broken",
+        "cn": "破损的"
+      },
+      {
+        "en": "lamp",
+        "cn": "台灯"
+      },
+      {
+        "en": "loud",
+        "cn": "大声的"
+      },
+      {
+        "en": "enjoy",
+        "cn": "享受"
+      },
+      {
+        "en": "stay",
+        "cn": "暂住"
+      }
+    ]
+  },
+  {
+    "unit": "六年级下册Unit  3 Where did you go?",
+    "count": 24,
+    "words": [
+      {
+        "en": "went",
+        "cn": "去（go 过去式）"
+      },
+      {
+        "en": "camp",
+        "cn": "野营"
+      },
+      {
+        "en": "went camping",
+        "cn": "去野营"
+      },
+      {
+        "en": "fish",
+        "cn": "钓鱼"
+      },
+      {
+        "en": "went fishing",
+        "cn": "去钓鱼"
+      },
+      {
+        "en": "rode",
+        "cn": "骑（ride 过去式）"
+      },
+      {
+        "en": "hurt",
+        "cn": "受伤（hurt 过去式）"
+      },
+      {
+        "en": "ate",
+        "cn": "吃（eat 过去式）"
+      },
+      {
+        "en": "took",
+        "cn": "拍照（take 过去式）"
+      },
+      {
+        "en": "took pictures",
+        "cn": "照相"
+      },
+      {
+        "en": "bought",
+        "cn": "买（buy 过去式）"
+      },
+      {
+        "en": "gift",
+        "cn": "礼物"
+      },
+      {
+        "en": "fell",
+        "cn": "摔倒（fall 过去式）"
+      },
+      {
+        "en": "off",
+        "cn": "从（某处）落下"
+      },
+      {
+        "en": "Labour Day",
+        "cn": "劳动节"
+      },
+      {
+        "en": "mule",
+        "cn": "骡子"
+      },
+      {
+        "en": "Turpan",
+        "cn": "吐鲁番"
+      },
+      {
+        "en": "could",
+        "cn": "能（can 过去式）"
+      },
+      {
+        "en": "till",
+        "cn": "直到"
+      },
+      {
+        "en": "beach",
+        "cn": "海滩"
+      },
+      {
+        "en": "basket",
+        "cn": "篮子"
+      },
+      {
+        "en": "part",
+        "cn": "角色"
+      },
+      {
+        "en": "licked",
+        "cn": "舔（lick 过去式）"
+      },
+      {
+        "en": "laughed",
+        "cn": "笑（laugh 过去式）"
+      }
+    ]
+  },
+  {
+    "unit": "六年级下册Unit  4 Then and now",
+    "count": 6,
+    "words": [
+      {
+        "en": "dining hall",
+        "cn": "饭厅"
+      },
+      {
+        "en": "grass",
+        "cn": "草坪"
+      },
+      {
+        "en": "gym",
+        "cn": "体育馆"
+      },
+      {
+        "en": "ago",
+        "cn": "以前"
+      },
+      {
+        "en": "cycling",
+        "cn": "骑自行车运动"
+      },
+      {
+        "en": "go cycling",
+        "cn": "去"
+      }
+    ]
+  },
+  {
+    "unit": "四年级上册Unit  1 Helping at home",
+    "count": 20,
+    "words": [
+      {
+        "en": "PE",
+        "cn": "体育课"
+      },
+      {
+        "en": "job",
+        "cn": "工作；职业"
+      },
+      {
+        "en": "doctor",
+        "cn": "医生"
+      },
+      {
+        "en": "farmer",
+        "cn": "农民"
+      },
+      {
+        "en": "nurse",
+        "cn": "护士"
+      },
+      {
+        "en": "worker",
+        "cn": "工人"
+      },
+      {
+        "en": "office worker",
+        "cn": "公司职员"
+      },
+      {
+        "en": "factory worker",
+        "cn": "工厂工人"
+      },
+      {
+        "en": "busy",
+        "cn": "忙碌的"
+      },
+      {
+        "en": "tired",
+        "cn": "疲倦的"
+      },
+      {
+        "en": "chore",
+        "cn": "家务杂活"
+      },
+      {
+        "en": "cook",
+        "cn": "烹饪；煮"
+      },
+      {
+        "en": "clean",
+        "cn": "打扫；干净的"
+      },
+      {
+        "en": "room",
+        "cn": "房间"
+      },
+      {
+        "en": "look after",
+        "cn": "照顾"
+      },
+      {
+        "en": "sweep",
+        "cn": "扫"
+      },
+      {
+        "en": "floor",
+        "cn": "地板"
+      },
+      {
+        "en": "together",
+        "cn": "一起"
+      },
+      {
+        "en": "people",
+        "cn": "人们"
+      },
+      {
+        "en": "child",
+        "cn": "儿童"
+      }
+    ]
+  },
+  {
+    "unit": "四年级上册Unit  2 Friends",
+    "count": 14,
+    "words": [
+      {
+        "en": "his",
+        "cn": "他的"
+      },
+      {
+        "en": "strong",
+        "cn": "强壮的"
+      },
+      {
+        "en": "hair",
+        "cn": "头发"
+      },
+      {
+        "en": "also",
+        "cn": "也"
+      },
+      {
+        "en": "kind",
+        "cn": "友好的"
+      },
+      {
+        "en": "quiet",
+        "cn": "文静的"
+      },
+      {
+        "en": "best",
+        "cn": "最好的"
+      },
+      {
+        "en": "read",
+        "cn": "阅读"
+      },
+      {
+        "en": "Chinese",
+        "cn": "中文；中国的"
+      },
+      {
+        "en": "play",
+        "cn": "玩耍"
+      },
+      {
+        "en": "game",
+        "cn": "游戏"
+      },
+      {
+        "en": "football",
+        "cn": "足球"
+      },
+      {
+        "en": "basketball",
+        "cn": "篮球"
+      },
+      {
+        "en": "always",
+        "cn": "总是"
+      }
+    ]
+  },
+  {
+    "unit": "四年级上册Unit  3 Places we live in",
+    "count": 17,
+    "words": [
+      {
+        "en": "afternoon",
+        "cn": "下午"
+      },
+      {
+        "en": "there",
+        "cn": "存在；那里"
+      },
+      {
+        "en": "live",
+        "cn": "居住"
+      },
+      {
+        "en": "house",
+        "cn": "房屋"
+      },
+      {
+        "en": "study",
+        "cn": "书房；学习"
+      },
+      {
+        "en": "bedroom",
+        "cn": "卧室"
+      },
+      {
+        "en": "kitchen",
+        "cn": "厨房"
+      },
+      {
+        "en": "bathroom",
+        "cn": "浴室"
+      },
+      {
+        "en": "living room",
+        "cn": "客厅"
+      },
+      {
+        "en": "home",
+        "cn": "家"
+      },
+      {
+        "en": "street",
+        "cn": "街道"
+      },
+      {
+        "en": "shop",
+        "cn": "商店"
+      },
+      {
+        "en": "park",
+        "cn": "公园"
+      },
+      {
+        "en": "supermarket",
+        "cn": "超市"
+      },
+      {
+        "en": "near",
+        "cn": "在附近"
+      },
+      {
+        "en": "behind",
+        "cn": "在后面"
+      },
+      {
+        "en": "next to",
+        "cn": "紧邻"
+      }
+    ]
+  },
+  {
+    "unit": "四年级上册Unit  4 Jobs around us",
+    "count": 18,
+    "words": [
+      {
+        "en": "firefighter",
+        "cn": "消防员"
+      },
+      {
+        "en": "why",
+        "cn": "为什么"
+      },
+      {
+        "en": "driver",
+        "cn": "司机"
+      },
+      {
+        "en": "cleaner",
+        "cn": "清洁工"
+      },
+      {
+        "en": "cook",
+        "cn": "厨师"
+      },
+      {
+        "en": "delivery worker",
+        "cn": "快递员"
+      },
+      {
+        "en": "police",
+        "cn": "警察"
+      },
+      {
+        "en": "police officer",
+        "cn": "警员"
+      },
+      {
+        "en": "a lot of",
+        "cn": "大量"
+      },
+      {
+        "en": "those",
+        "cn": "那些"
+      },
+      {
+        "en": "bed",
+        "cn": "床"
+      },
+      {
+        "en": "make the bed",
+        "cn": "铺床"
+      },
+      {
+        "en": "old",
+        "cn": "年老的"
+      },
+      {
+        "en": "tell",
+        "cn": "告诉"
+      },
+      {
+        "en": "everyone",
+        "cn": "每人"
+      },
+      {
+        "en": "volunteer",
+        "cn": "志愿者"
+      },
+      {
+        "en": "Mrs",
+        "cn": "夫人"
+      },
+      {
+        "en": "Ms",
+        "cn": "女士"
+      }
+    ]
+  },
+  {
+    "unit": "四年级上册Unit  5 Weather",
+    "count": 23,
+    "words": [
+      {
+        "en": "speak",
+        "cn": "说话"
+      },
+      {
+        "en": "weather",
+        "cn": "天气"
+      },
+      {
+        "en": "sunny",
+        "cn": "晴朗的"
+      },
+      {
+        "en": "hot",
+        "cn": "热的"
+      },
+      {
+        "en": "bad",
+        "cn": "坏的"
+      },
+      {
+        "en": "cold",
+        "cn": "冷的"
+      },
+      {
+        "en": "windy",
+        "cn": "多风的"
+      },
+      {
+        "en": "cloudy",
+        "cn": "多云的"
+      },
+      {
+        "en": "rainy",
+        "cn": "下雨的"
+      },
+      {
+        "en": "snowy",
+        "cn": "下雪的"
+      },
+      {
+        "en": "cool",
+        "cn": "凉爽的"
+      },
+      {
+        "en": "warm",
+        "cn": "温暖的"
+      },
+      {
+        "en": "tomorrow",
+        "cn": "明天"
+      },
+      {
+        "en": "rain",
+        "cn": "下雨"
+      },
+      {
+        "en": "closed",
+        "cn": "关闭的"
+      },
+      {
+        "en": "film",
+        "cn": "电影"
+      },
+      {
+        "en": "idea",
+        "cn": "主意"
+      },
+      {
+        "en": "fly",
+        "cn": "飞；放飞"
+      },
+      {
+        "en": "kite",
+        "cn": "风筝"
+      },
+      {
+        "en": "snowman",
+        "cn": "雪人"
+      },
+      {
+        "en": "their",
+        "cn": "他们的"
+      },
+      {
+        "en": "swim",
+        "cn": "游泳"
+      },
+      {
+        "en": "Sydney",
+        "cn": "悉尼"
+      }
+    ]
+  },
+  {
+    "unit": "四年级上册Unit  6 Shopping",
+    "count": 19,
+    "words": [
+      {
+        "en": "glove",
+        "cn": "手套"
+      },
+      {
+        "en": "scarf",
+        "cn": "围巾"
+      },
+      {
+        "en": "umbrella",
+        "cn": "雨伞"
+      },
+      {
+        "en": "sunglasses",
+        "cn": "太阳镜"
+      },
+      {
+        "en": "shirt",
+        "cn": "衬衫"
+      },
+      {
+        "en": "coat",
+        "cn": "外套"
+      },
+      {
+        "en": "shorts",
+        "cn": "短裤"
+      },
+      {
+        "en": "jacket",
+        "cn": "夹克衫"
+      },
+      {
+        "en": "dress",
+        "cn": "连衣裙"
+      },
+      {
+        "en": "cheap",
+        "cn": "便宜的"
+      },
+      {
+        "en": "expensive",
+        "cn": "昂贵的"
+      },
+      {
+        "en": "nice",
+        "cn": "好看的"
+      },
+      {
+        "en": "pretty",
+        "cn": "漂亮的"
+      },
+      {
+        "en": "beautiful",
+        "cn": "美丽的"
+      },
+      {
+        "en": "size",
+        "cn": "尺码"
+      },
+      {
+        "en": "try on",
+        "cn": "试穿"
+      },
+      {
+        "en": "how much",
+        "cn": "多少钱"
+      },
+      {
+        "en": "take",
+        "cn": "买下"
+      },
+      {
+        "en": "large",
+        "cn": "大号的"
+      }
+    ]
+  },
+  {
+    "unit": "四年级下册Unit  1 School rules",
+    "count": 19,
+    "words": [
+      {
+        "en": "sorry",
+        "cn": "对不起"
+      },
+      {
+        "en": "late",
+        "cn": "迟到"
+      },
+      {
+        "en": "class",
+        "cn": "课；班级"
+      },
+      {
+        "en": "hurry up",
+        "cn": "快点"
+      },
+      {
+        "en": "ready",
+        "cn": "准备好"
+      },
+      {
+        "en": "rule",
+        "cn": "规则"
+      },
+      {
+        "en": "classroom",
+        "cn": "教室"
+      },
+      {
+        "en": "turn off",
+        "cn": "关掉"
+      },
+      {
+        "en": "light",
+        "cn": "灯"
+      },
+      {
+        "en": "blackboard",
+        "cn": "黑板"
+      },
+      {
+        "en": "desk",
+        "cn": "书桌"
+      },
+      {
+        "en": "chair",
+        "cn": "椅子"
+      },
+      {
+        "en": "tidy",
+        "cn": "整洁的；整理"
+      },
+      {
+        "en": "wall",
+        "cn": "墙"
+      },
+      {
+        "en": "door",
+        "cn": "门"
+      },
+      {
+        "en": "window",
+        "cn": "窗户"
+      },
+      {
+        "en": "fan",
+        "cn": "风扇"
+      },
+      {
+        "en": "when",
+        "cn": "什么时候"
+      },
+      {
+        "en": "understand",
+        "cn": "理解"
+      }
+    ]
+  },
+  {
+    "unit": "四年级下册Unit  2 Our new home",
+    "count": 20,
+    "words": [
+      {
+        "en": "newspaper",
+        "cn": "报纸"
+      },
+      {
+        "en": "hand out",
+        "cn": "分发"
+      },
+      {
+        "en": "workbook",
+        "cn": "练习册"
+      },
+      {
+        "en": "watch",
+        "cn": "观看"
+      },
+      {
+        "en": "TV",
+        "cn": "电视"
+      },
+      {
+        "en": "homework",
+        "cn": "作业"
+      },
+      {
+        "en": "first",
+        "cn": "首先"
+      },
+      {
+        "en": "rest",
+        "cn": "休息"
+      },
+      {
+        "en": "run",
+        "cn": "跑"
+      },
+      {
+        "en": "house",
+        "cn": "房子"
+      },
+      {
+        "en": "safe",
+        "cn": "安全的"
+      },
+      {
+        "en": "wash",
+        "cn": "洗"
+      },
+      {
+        "en": "loud",
+        "cn": "大声的"
+      },
+      {
+        "en": "sleep",
+        "cn": "睡觉"
+      },
+      {
+        "en": "bedroom",
+        "cn": "卧室"
+      },
+      {
+        "en": "kitchen",
+        "cn": "厨房"
+      },
+      {
+        "en": "living room",
+        "cn": "客厅"
+      },
+      {
+        "en": "study",
+        "cn": "书房"
+      },
+      {
+        "en": "bathroom",
+        "cn": "浴室"
+      },
+      {
+        "en": "work",
+        "cn": "工作；干活"
+      }
+    ]
+  },
+  {
+    "unit": "四年级下册Unit  3 Daily routines",
+    "count": 14,
+    "words": [
+      {
+        "en": "over",
+        "cn": "结束"
+      },
+      {
+        "en": "kid",
+        "cn": "小孩"
+      },
+      {
+        "en": "dinner",
+        "cn": "晚餐"
+      },
+      {
+        "en": "art",
+        "cn": "美术"
+      },
+      {
+        "en": "lunch",
+        "cn": "午餐"
+      },
+      {
+        "en": "music",
+        "cn": "音乐"
+      },
+      {
+        "en": "get up",
+        "cn": "起床"
+      },
+      {
+        "en": "go to school",
+        "cn": "去上学"
+      },
+      {
+        "en": "go home",
+        "cn": "回家"
+      },
+      {
+        "en": "go to bed",
+        "cn": "上床睡觉"
+      },
+      {
+        "en": "clock",
+        "cn": "时钟"
+      },
+      {
+        "en": "want",
+        "cn": "想要"
+      },
+      {
+        "en": "just",
+        "cn": "只是"
+      },
+      {
+        "en": "minute",
+        "cn": "分钟"
+      }
+    ]
+  },
+  {
+    "unit": "四年级下册Unit  4 Clothes",
+    "count": 17,
+    "words": [
+      {
+        "en": "trousers",
+        "cn": "裤子"
+      },
+      {
+        "en": "pair",
+        "cn": "一双；一副"
+      },
+      {
+        "en": "clothes",
+        "cn": "衣服"
+      },
+      {
+        "en": "shorts",
+        "cn": "短裤"
+      },
+      {
+        "en": "skirt",
+        "cn": "短裙"
+      },
+      {
+        "en": "jacket",
+        "cn": "夹克衫"
+      },
+      {
+        "en": "dear",
+        "cn": "天哪"
+      },
+      {
+        "en": "expensive",
+        "cn": "昂贵的"
+      },
+      {
+        "en": "cheap",
+        "cn": "便宜的"
+      },
+      {
+        "en": "nice",
+        "cn": "好看的"
+      },
+      {
+        "en": "beautiful",
+        "cn": "美丽的"
+      },
+      {
+        "en": "hat",
+        "cn": "帽子"
+      },
+      {
+        "en": "sunglasses",
+        "cn": "太阳镜"
+      },
+      {
+        "en": "free",
+        "cn": "免费的"
+      },
+      {
+        "en": "size",
+        "cn": "尺码"
+      },
+      {
+        "en": "try on",
+        "cn": "试穿"
+      },
+      {
+        "en": "just right",
+        "cn": "正好"
+      }
+    ]
+  },
+  {
+    "unit": "四年级下册Unit  5 On the farm",
+    "count": 16,
+    "words": [
+      {
+        "en": "any",
+        "cn": "任何的"
+      },
+      {
+        "en": "cow",
+        "cn": "奶牛"
+      },
+      {
+        "en": "horse",
+        "cn": "马"
+      },
+      {
+        "en": "sheep",
+        "cn": "绵羊"
+      },
+      {
+        "en": "pig",
+        "cn": "猪"
+      },
+      {
+        "en": "hen",
+        "cn": "母鸡"
+      },
+      {
+        "en": "goat",
+        "cn": "山羊"
+      },
+      {
+        "en": "farm",
+        "cn": "农场"
+      },
+      {
+        "en": "vegetable",
+        "cn": "蔬菜"
+      },
+      {
+        "en": "tomato",
+        "cn": "西红柿"
+      },
+      {
+        "en": "potato",
+        "cn": "土豆"
+      },
+      {
+        "en": "carrot",
+        "cn": "胡萝卜"
+      },
+      {
+        "en": "green beans",
+        "cn": "豆角"
+      },
+      {
+        "en": "so",
+        "cn": "这么"
+      },
+      {
+        "en": "long",
+        "cn": "长的"
+      },
+      {
+        "en": "great",
+        "cn": "极好的"
+      }
+    ]
+  },
+  {
+    "unit": "四年级下册Unit  6 Holidays",
+    "count": 16,
+    "words": [
+      {
+        "en": "travel",
+        "cn": "旅行"
+      },
+      {
+        "en": "summer",
+        "cn": "夏天"
+      },
+      {
+        "en": "holiday",
+        "cn": "假期"
+      },
+      {
+        "en": "beach",
+        "cn": "海滩"
+      },
+      {
+        "en": "sea",
+        "cn": "大海"
+      },
+      {
+        "en": "mountain",
+        "cn": "高山"
+      },
+      {
+        "en": "visit",
+        "cn": "拜访；参观"
+      },
+      {
+        "en": "grandparent",
+        "cn": "祖父母"
+      },
+      {
+        "en": "play",
+        "cn": "玩"
+      },
+      {
+        "en": "enjoy",
+        "cn": "享受"
+      },
+      {
+        "en": "wonderful",
+        "cn": "精彩的"
+      },
+      {
+        "en": "photo",
+        "cn": "照片"
+      },
+      {
+        "en": "take photos",
+        "cn": "拍照"
+      },
+      {
+        "en": "gift",
+        "cn": "礼物"
+      },
+      {
+        "en": "buy",
+        "cn": "买"
+      },
+      {
+        "en": "delicious",
+        "cn": "美味的"
+      }
+    ]
+  }
+];
 
-    // 生成辅助索引
-    const gradeList = Object.keys(gradeData);
+    
+    // ==========================================
+    // 📖 人教PEP 单词数据库（3-6年级 46单元）
+    // 数据来源：三年级英语词汇表_结构化.json
+    const GRADE_ORDER = ['三年级上册','三年级下册','四年级上册','四年级下册','五年级上册','五年级下册','六年级上册','六年级下册'];
+
+    // 解析源数据为年级→单元结构
+    function buildGradeData(raw) {
+        const gd = {};
+        GRADE_ORDER.forEach(g => gd[g] = { name: g, units: [] });
+        raw.forEach(item => {
+            const m = item.unit.match(/^(.+?)Unit\s+(\d+)\s+(.+)$/);
+            if (!m || !gd[m[1].trim()]) return;
+            const grade = m[1].trim(), unitNum = parseInt(m[2]), unitName = m[3];
+            gd[grade].units.push({ id: unitNum, name: unitName, words: item.words.map(w => ({ en: w.en, zh: w.cn, emoji: '' })) });
+        });
+        GRADE_ORDER.forEach(g => gd[g].units.sort((a, b) => a.id - b.id));
+        return gd;
+    }
+
+    const gradeData = buildGradeData(VOCAB_DATA);
+    const gradeList = GRADE_ORDER;
     function getAllWords(gradeKey) {
         const g = gradeData[gradeKey];
+        if (!g) return [];
         const all = [];
-        g.units.forEach(u => u.words.forEach(w => {
-            all.push({ ...w, unitId: u.id, unitName: u.name, grade: gradeKey });
-        }));
+        g.units.forEach(u => u.words.forEach(w => { all.push({ ...w, unitId: u.id, unitName: u.name, grade: gradeKey }); }));
         return all;
     }
 
@@ -1079,9 +4945,10 @@
                 el.classList.add('blank');
                 el.innerHTML = `<div class="tile-content">⭐</div>`;
             } else if (tile.type === 'chinese') {
+                const emojiHtml = tile.word.emoji ? `<div class="tile-emoji">${tile.word.emoji}</div>` : '';
                 el.innerHTML = `
                     <span class="tile-type-badge">中</span>
-                    <div class="tile-emoji">${tile.word.emoji}</div>
+                    ${emojiHtml}
                     <div class="tile-content ${tile.type}">${tile.content}</div>
                 `;
             } else {
@@ -1460,24 +5327,60 @@
     // ==========================================
 
     document.addEventListener('DOMContentLoaded', function() {
-        // 年级选择
-        document.querySelectorAll('.grade-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const grade = this.dataset.grade;
-                if (grade === gameState.grade) return;
-                document.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                gameState.grade = grade;
-
-                // 切换年级清空已选 → 默认全选
-                selectedWordSet = new Set(getGradeWords(grade).map(w => w.en));
-                rebuildSelectedList();
-
-                updatePickSummary();
-                if (!gameState.isPlaying) {
-                    initGame();
-                }
+        // 年级 + 单元下拉
+        function populateGradeSelect() {
+            const sel = document.getElementById('gradeSelect');
+            sel.innerHTML = '';
+            GRADE_ORDER.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g;
+                sel.appendChild(opt);
             });
+            sel.value = gameState.grade;
+        }
+
+        function populateUnitSelect(grade) {
+            const sel = document.getElementById('unitSelect');
+            sel.innerHTML = '';
+            const allOpt = document.createElement('option');
+            allOpt.value = '';
+            allOpt.textContent = '🎲 整年随机';
+            sel.appendChild(allOpt);
+            const g = gradeData[grade];
+            if (g) {
+                g.units.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.id;
+                    opt.textContent = `Unit ${u.id} ${u.name}`;
+                    sel.appendChild(opt);
+                });
+            }
+            sel.value = '';
+        }
+
+        document.getElementById('gradeSelect').addEventListener('change', function() {
+            const grade = this.value;
+            gameState.grade = grade;
+            populateUnitSelect(grade);
+            selectedWordSet = new Set(getGradeWords(grade).map(w => w.en));
+            rebuildSelectedList();
+            updatePickSummary();
+            if (!gameState.isPlaying) initGame();
+        });
+
+        document.getElementById('unitSelect').addEventListener('change', function() {
+            const grade = gameState.grade;
+            const unitId = this.value;
+            if (!unitId) {
+                selectedWordSet = new Set(getGradeWords(grade).map(w => w.en));
+            } else {
+                const u = gradeData[grade].units.find(x => x.id == unitId);
+                if (u) selectedWordSet = new Set(u.words.map(w => w.en));
+            }
+            rebuildSelectedList();
+            updatePickSummary();
+            if (!gameState.isPlaying) initGame();
         });
 
         // 打开选词面板
@@ -1547,7 +5450,9 @@
             voiceSelect.style.display = 'none';
         }
 
-        // 初始化：默认全选当前年级
+        // 初始化下拉 + 默认全选当前年级
+        populateGradeSelect();
+        populateUnitSelect(gameState.grade);
         selectedWordSet = new Set(getGradeWords(gameState.grade).map(w => w.en));
         rebuildSelectedList();
         updatePickSummary();
