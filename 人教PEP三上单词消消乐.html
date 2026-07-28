@@ -8,7 +8,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -18,13 +18,21 @@
         }
 
         .game-container {
-            max-width: 700px;
+            max-width: min(700px, 95vw);
             width: 100%;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.92);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-radius: 30px;
             padding: 20px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        /* Large screens: classroom projector */
+        @media (min-width: 1400px) {
+            .game-container { max-width: 900px; }
+            .game-title { font-size: 2.8em; }
+            .game-board { padding: 25px; gap: 12px; }
         }
 
         .game-header {
@@ -322,14 +330,19 @@
         }
 
         .control-btn {
-            padding: 10px 22px;
+            padding: 12px 24px;
             border: none;
             border-radius: 25px;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             color: white;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .control-btn:active:not(:disabled) {
+            transform: scale(0.95);
         }
 
         .control-btn:disabled {
@@ -548,21 +561,27 @@
         .pick-word {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            padding: 5px 10px;
-            border-radius: 8px;
+            gap: 5px;
+            padding: 8px 12px;
+            border-radius: 10px;
             border: 1.5px solid #ddd;
             background: #fafafa;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 14px;
             color: #333;
             transition: all 0.2s;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 44px;
         }
 
         .pick-word:hover {
             border-color: #667eea;
             background: #f0f2ff;
+        }
+
+        .pick-word:active {
+            transform: scale(0.96);
         }
 
         .pick-word.checked {
@@ -621,6 +640,13 @@
         /* Mobile: panel full-screen */
         @media (max-width: 500px) {
             .pick-panel { width: 100vw; border-radius: 0; }
+        }
+
+        /* Tablet: bigger touch targets */
+        @media (min-width: 500px) and (max-width: 1024px) {
+            .control-btn { padding: 14px 28px; font-size: 16px; }
+            .pick-word { padding: 10px 14px; font-size: 15px; min-height: 48px; }
+            .game-stats { padding: 14px 24px; }
         }
 
         /* Bottom hint */
@@ -1271,24 +1297,30 @@
         // 保留第一个选项"自动"
         voiceSelect.innerHTML = '<option value="">🔊 自动</option>';
 
-        // 按名称去重排序
-        const seen = new Set();
-        englishVoices.forEach(v => {
-            const label = `${v.name} (${v.lang})`;
-            if (seen.has(label)) return;
-            seen.add(label);
+        // 按名称去重排序，推荐语音优先
+        const shown = new Set();
+        const addVoice = (v, labelSuffix = '') => {
+            const label = `${v.name} (${v.lang})${labelSuffix}`;
+            if (shown.has(label)) return;
+            shown.add(label);
             const opt = document.createElement('option');
             opt.value = v.name;
             opt.textContent = label;
-            if (v.name === 'Samantha' || v.name === 'Alex' || v.name === 'Karen' || v.name === 'Daniel') {
-                opt.dataset.recommended = '1';
-            }
             voiceSelect.appendChild(opt);
-        });
+        };
 
-        // 标记推荐语音
-        voiceSelect.querySelectorAll('[data-recommended]').forEach(opt => {
-            opt.textContent += ' ⭐';
+        // 先加 Google 云端语音（推荐，跨平台质量好）
+        englishVoices.forEach(v => {
+            if (v.name.includes('Google')) addVoice(v, ' ☁️');
+        });
+        // 再加系统自然语音（macOS / iOS）
+        const nativeGood = ['Samantha', 'Karen', 'Alex', 'Daniel', 'Moira', 'Tessa', 'Flo'];
+        englishVoices.forEach(v => {
+            if (nativeGood.includes(v.name)) addVoice(v, ' ⭐');
+        });
+        // 最后加其他的
+        englishVoices.forEach(v => {
+            if (!v.name.includes('Google') && !nativeGood.includes(v.name)) addVoice(v);
         });
     }
 
@@ -1304,20 +1336,16 @@
 
         const selectedName = voiceSelect.value;
         if (selectedName) {
-            // 用户选了特定语音
             const voice = availableVoices.find(v => v.name === selectedName);
             if (voice) u.voice = voice;
         } else {
-            // 自动模式：优先用自然语音
-            const preferred = ['Samantha', 'Karen', 'Alex', 'Daniel', 'Moira', 'Tessa'];
-            for (const name of preferred) {
-                const v = availableVoices.find(vv => vv.name === name);
-                if (v) { u.voice = v; break; }
-            }
-            // 还是没找到，用第一个 en-US
-            if (!u.voice) {
-                u.voice = availableVoices.find(v => v.lang === 'en-US');
-            }
+            // 自动：Google 优先 → 系统自然语音 → 第一个 en
+            const preferred = [
+                ...availableVoices.filter(v => v.name.includes('Google')),
+                ...availableVoices.filter(v => ['Samantha','Karen','Alex','Daniel','Moira','Tessa','Flo'].includes(v.name)),
+            ];
+            for (const v of preferred) { u.voice = v; break; }
+            if (!u.voice) u.voice = availableVoices.find(v => v.lang === 'en-US');
         }
 
         speechSynthesis.speak(u);
@@ -1515,6 +1543,8 @@
             window.speechSynthesis.onvoiceschanged = () => {
                 populateVoiceSelect();
             };
+        } else {
+            voiceSelect.style.display = 'none';
         }
 
         // 初始化：默认全选当前年级
