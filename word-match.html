@@ -398,7 +398,7 @@
             flex-wrap: wrap;
         }
 
-        .grade-select, .unit-select {
+        .grade-select, .unit-select, .theme-select {
             padding: 6px 14px;
             border: 2px solid #fff;
             border-radius: 20px;
@@ -412,11 +412,11 @@
             -webkit-appearance: none;
             appearance: none;
         }
-        .grade-select:hover, .unit-select:hover {
+        .grade-select:hover, .unit-select:hover, .theme-select:hover {
             background: #f0f0ff;
             border-color: #e0e0ff;
         }
-        .grade-select option, .unit-select option { color: #333; background: #fff; }
+        .grade-select option, .unit-select option, .theme-select option { color: #333; background: #fff; }
 
         .pick-btn {
             padding: 6px 16px;
@@ -655,6 +655,82 @@
             font-size: 12px;
             font-weight: 500;
         }
+
+        /* ── 2026 visual refresh ─────────────────────────── */
+        :root { --ink: #17233f; --muted: #667085; --primary: #5b5ce2; --mint: #35c99a; --panel: #f5f7ff; --page-a: #ffffff; --page-b: #edf1f7; --page-c: #dfe6f0; --surface: #ffffff; --surface-border: #e3e8f1; --board-bg: #edf0ff; --board-bg-end: #f7f8ff; --board-border: #dce2ff; }
+        body {
+            min-height: 100dvh;
+            padding: clamp(12px, 2vw, 32px);
+            background: radial-gradient(circle at 8% 10%, var(--page-a) 0, transparent 26rem), radial-gradient(circle at 92% 0%, var(--page-b) 0, transparent 28rem), linear-gradient(135deg, var(--page-a), var(--page-b) 58%, var(--page-c));
+        }
+        body[data-theme="ocean"] { --page-a: #c9f1ff; --page-b: #73c7ed; --page-c: #4775d1; --surface: #f8fdff; --surface-border: #bce7f8; --panel: #e4f7ff; --primary: #1773c9; --board-bg: #e5f4ff; --board-bg-end: #f7fcff; --board-border: #afdff4; }
+        body[data-theme="forest"] { --page-a: #dff5d7; --page-b: #91cf99; --page-c: #3b8b68; --surface: #fbfff9; --surface-border: #cce8c6; --panel: #edf9e9; --primary: #27835c; --board-bg: #eaf7e6; --board-bg-end: #fbfffa; --board-border: #c1e5ba; }
+        body[data-theme="sunset"] { --page-a: #fff0c9; --page-b: #ffbd8e; --page-c: #e76d6d; --surface: #fffdf9; --surface-border: #ffe0bd; --panel: #fff5e6; --primary: #d85b49; --board-bg: #fff0df; --board-bg-end: #fffaf5; --board-border: #ffd0a5; }
+        body[data-theme="night"] { --page-a: #222553; --page-b: #434180; --page-c: #7a4c9d; --surface: #fcfcff; --surface-border: #d7d9f2; --panel: #f0f0fc; --primary: #6253c7; --board-bg: #ececff; --board-bg-end: #fafaff; --board-border: #cbcaf4; }
+        .game-container { max-width: min(1480px, 98vw); padding: clamp(18px, 2.4vw, 34px); background: var(--surface); border: 1px solid var(--surface-border); border-radius: 28px; box-shadow: 0 24px 70px rgba(25, 24, 87, .22); }
+        .game-header { color: var(--ink); display: flex; align-items: baseline; justify-content: space-between; text-align: left; gap: 16px; margin: 0 0 20px; }
+        .game-title { margin: 0; font-size: clamp(1.75rem, 3vw, 2.8rem); letter-spacing: -.06em; }
+        .subtitle { margin: 0; color: var(--muted); }
+        .top-bar { padding: 12px; background: var(--panel); border: 1px solid #e6e9fb; border-radius: 16px; }
+        .grade-select, .unit-select, .voice-select, .theme-select, .pick-btn { border-color: #dde2fb; background: white; color: var(--ink); min-height: 40px; }
+        .pick-count { color: var(--primary); }
+        .mode-selector { display: flex; gap: 8px; padding: 5px; background: #eef0fb; border-radius: 14px; }
+        .mode-btn { border: 0; border-radius: 10px; padding: 8px 14px; background: transparent; color: #56617a; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
+        .mode-btn.active { color: #fff; background: var(--primary); box-shadow: 0 4px 10px rgba(91,92,226,.24); }
+        .level-selector { justify-content: flex-start; margin: 18px 0 12px; }
+        .level-btn { border: 2px solid transparent; box-shadow: none; }
+        .level-btn.active { transform: none; border-color: var(--ink); box-shadow: 0 4px 12px rgba(23,35,63,.16); }
+        .game-stats { justify-content: flex-start; padding: 12px 18px; border: 1px solid #edf0fa; box-shadow: none; }
+        .countdown-wrap { margin: 0 0 14px; padding: 10px 0 12px; background: #f7f8fe; border-radius: 16px; }
+        .countdown-number { font-size: clamp(2.6rem, 5vw, 4.2rem); color: var(--ink); text-shadow: none; }
+        /* 单人棋盘与每位 PK 玩家采用相同的紧凑尺寸，投影时无需滚动页面。 */
+        .game-board { width: 100%; max-width: 680px; height: auto; margin: 0 auto 16px; padding: clamp(12px, 1.5vw, 16px); gap: clamp(6px, .8vw, 10px); background: linear-gradient(145deg, var(--board-bg), var(--board-bg-end)); border: 1px solid var(--board-border); border-radius: 22px; }
+        .word-tile { min-height: clamp(58px, 6vw, 88px); aspect-ratio: auto; border-radius: 16px; border: 1px solid #eef0f8; box-shadow: 0 7px 16px rgba(44,57,123,.11); overflow: hidden; }
+        /* 两种模式都略增大文字，兼顾大屏可读性与紧凑布局。 */
+        .word-tile .tile-content { font-size: clamp(1rem, 2.1cqi, 1.3rem); line-height: 1.12; }
+        .word-tile .tile-emoji { font-size: clamp(1.15rem, 3.2cqi, 1.7rem); }
+        .word-tile:hover { transform: translateY(-4px) scale(1.015); }
+        .game-controls { margin-top: 6px; }
+        .control-btn { border-radius: 14px; min-height: 48px; }
+        .control-btn.start { background: linear-gradient(135deg, #4c50d5, #7367e9); color: #fff; }
+        .game-footer { color: #667085; }
+
+        /* PK mode */
+        .pk-area { display: none; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(14px, 2vw, 28px); margin-bottom: 16px; }
+        .pk-area.visible { display: grid; }
+        .pk-player { min-width: 0; padding: clamp(12px, 1.8vw, 22px); background: #fff; border: 2px solid #e7eafd; border-radius: 22px; box-shadow: 0 8px 24px rgba(39,50,116,.08); }
+        .pk-player.player-one { border-color: #95b7ff; }
+        .pk-player.player-two { border-color: #ffb3d0; }
+        .pk-player.winner { animation: winnerGlow .9s ease-in-out infinite alternate; }
+        @keyframes winnerGlow { to { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(53,201,154,.38); border-color: var(--mint); } }
+        .pk-player-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+        .pk-name { min-width: 0; border: 0; border-bottom: 2px solid transparent; padding: 4px; color: var(--ink); background: transparent; font: 800 clamp(1rem, 1.6vw, 1.25rem)/1.25 inherit; text-align: center; outline: none; }
+        .pk-name:focus { border-color: var(--primary); }
+        .pk-score { flex: 0 0 auto; padding: 6px 10px; border-radius: 10px; background: #f0f2ff; color: var(--primary); font-weight: 900; }
+        .pk-meta { margin: -4px 0 10px; color: var(--muted); text-align: center; font-size: 13px; font-weight: 700; }
+        .pk-board { width: 100%; max-width: none; height: auto; margin: 0; padding: clamp(8px, 1.2vw, 14px); gap: clamp(5px, .7vw, 10px); }
+        .pk-board .word-tile { min-height: clamp(58px, 6vw, 88px); border-radius: 12px; padding: 3px; }
+        .pk-board .tile-content { font-size: clamp(.95rem, 2.1cqi, 1.25rem); }
+        .pk-board .tile-emoji { font-size: clamp(1rem, 2.8cqi, 1.55rem); }
+        .pk-board .tile-type-badge { font-size: .5em; padding: 1px 4px; }
+        @media (max-width: 760px) {
+            .game-header { display: block; text-align: center; }
+            .subtitle { margin-top: 6px; }
+            .top-bar { justify-content: center; }
+            .mode-selector { width: 100%; justify-content: center; order: -1; }
+            .level-selector { justify-content: center; }
+            .game-stats { justify-content: center; }
+            .pk-area { gap: 10px; }
+            .pk-player { padding: 8px; border-radius: 16px; }
+            .pk-player-head { margin-bottom: 7px; }
+            .pk-name { width: 80px; font-size: .9rem; }
+            .pk-score { padding: 4px 7px; font-size: .85rem; }
+        }
+        @media (max-width: 500px) {
+            .game-board:not(.pk-board) { padding: 9px; gap: 6px; }
+            .pk-board .word-tile { min-height: 44px; }
+            .pk-board { gap: 4px; padding: 6px; }
+        }
     </style>
 </head>
 <body>
@@ -663,19 +739,30 @@
     <!-- Header -->
     <div class="game-header">
         <div class="game-title">📚 单词消消乐</div>
-        <div class="subtitle" id="subtitle">人教PEP · 三年级上册</div>
+        <div class="subtitle" id="subtitle">人教PEP · 三年级上册 · 配对练习</div>
     </div>
 
     <!-- 年级 + 单元 下拉菜单 -->
     <div class="top-bar">
+        <div class="mode-selector" role="tablist" aria-label="游戏模式">
+            <button class="mode-btn active" data-mode="solo" role="tab" aria-selected="true">🎯 单人闯关</button>
+            <button class="mode-btn" data-mode="pk" role="tab" aria-selected="false">⚔️ 双人 PK</button>
+        </div>
         <select class="grade-select" id="gradeSelect"></select>
         <select class="unit-select" id="unitSelect"></select>
         <button class="pick-btn" id="pickBtn">📝 自选</button>
+        <select class="theme-select" id="themeSelect" aria-label="页面主题">
+            <option value="white">🤍 纯白主题</option>
+            <option value="ocean">🌊 海洋蓝</option>
+            <option value="forest">🌿 森林绿</option>
+            <option value="sunset">🌅 日落橙</option>
+            <option value="night">🌙 星空紫</option>
+        </select>
         <select class="voice-select" id="voiceSelect">
             <option value="">🔊 语音</option>
         </select>
         <span class="pick-count" id="pickCount">全部</span>
-    </div></div>
+    </div>
 
     <!-- Level Selector -->
     <div class="level-selector">
@@ -720,6 +807,26 @@
 
     <!-- Game Board -->
     <div class="game-board easy" id="gameBoard"></div>
+
+    <!-- PK：两名玩家看到完全相同的棋盘，共享倒计时 -->
+    <section class="pk-area" id="pkArea" aria-label="双人 PK 对战区">
+        <article class="pk-player player-one" id="pkPlayer1">
+            <div class="pk-player-head">
+                <input class="pk-name" id="player1Name" value="玩家 1" maxlength="8" aria-label="玩家 1 名称">
+                <span class="pk-score" id="pkScore1">⭐ 0</span>
+            </div>
+            <div class="pk-meta" id="pkMeta1">已配对 0 / 8 · 正确率 100%</div>
+            <div class="game-board easy pk-board" id="pkBoard1"></div>
+        </article>
+        <article class="pk-player player-two" id="pkPlayer2">
+            <div class="pk-player-head">
+                <input class="pk-name" id="player2Name" value="玩家 2" maxlength="8" aria-label="玩家 2 名称">
+                <span class="pk-score" id="pkScore2">⭐ 0</span>
+            </div>
+            <div class="pk-meta" id="pkMeta2">已配对 0 / 8 · 正确率 100%</div>
+            <div class="game-board easy pk-board" id="pkBoard2"></div>
+        </article>
+    </section>
 
     <!-- Controls -->
     <div class="game-controls">
@@ -4801,6 +4908,7 @@ const VOCAB_DATA = [
     // ==========================================
     let gameState = {
         grade: '三年级上册',
+        mode: 'solo',
         selectedWordEnSet: null, // Set 初始化在 start
         level: 'easy',
         score: 0,
@@ -4862,6 +4970,21 @@ const VOCAB_DATA = [
     const pickPanelClose = document.getElementById('pickPanelClose');
     const pickPanelConfirm = document.getElementById('pickPanelConfirm');
     const voiceSelect = document.getElementById('voiceSelect');
+    const themeSelect = document.getElementById('themeSelect');
+    const pkArea = document.getElementById('pkArea');
+    const pkBoards = [document.getElementById('pkBoard1'), document.getElementById('pkBoard2')];
+    const pkPlayers = [document.getElementById('pkPlayer1'), document.getElementById('pkPlayer2')];
+    const pkScores = [document.getElementById('pkScore1'), document.getElementById('pkScore2')];
+    const pkMetas = [document.getElementById('pkMeta1'), document.getElementById('pkMeta2')];
+    const pkNames = [document.getElementById('player1Name'), document.getElementById('player2Name')];
+    let pkStates = [];
+
+    function applyTheme(theme) {
+        const selectedTheme = ['white', 'ocean', 'forest', 'sunset', 'night'].includes(theme) ? theme : 'white';
+        document.body.dataset.theme = selectedTheme;
+        themeSelect.value = selectedTheme;
+        try { localStorage.setItem('wordMatchTheme', selectedTheme); } catch (e) { /* 私密模式下仍可正常切换 */ }
+    }
 
     // ==========================================
     // 🔧 核心函数
@@ -4882,7 +5005,13 @@ const VOCAB_DATA = [
             gameState.timer = null;
         }
 
-        generateGameBoard();
+        if (gameState.mode === 'pk') {
+            initPkGame();
+        } else {
+            gameBoard.style.display = '';
+            pkArea.classList.remove('visible');
+            generateGameBoard();
+        }
         updateUI();
         winnerAnnouncement.style.display = 'none';
         updatePickSummary();
@@ -4971,6 +5100,135 @@ const VOCAB_DATA = [
             el.addEventListener('click', handleTileClick);
             gameBoard.appendChild(el);
         });
+    }
+
+    // ==========================================
+    // ⚔️ 双人 PK：同一随机棋盘、独立选择与计分
+    // ==========================================
+    function initPkGame() {
+        // 先复用单人题库与洗牌逻辑，随后把同一份棋盘复制给两位玩家。
+        generateGameBoard();
+        const sharedTiles = gameState.gameBoard.map(tile => ({ ...tile }));
+        pkStates = [0, 1].map(() => ({
+            board: sharedTiles.map(tile => ({ ...tile })), selectedTiles: [], score: 0,
+            totalAttempts: 0, correctAttempts: 0, matchedCount: 0, finished: false
+        }));
+        gameBoard.style.display = 'none';
+        pkArea.classList.add('visible');
+        pkPlayers.forEach(player => player.classList.remove('winner'));
+        renderPkBoard(0);
+        renderPkBoard(1);
+        updatePkUI();
+    }
+
+    function renderPkBoard(playerIndex) {
+        const board = pkBoards[playerIndex];
+        const state = pkStates[playerIndex];
+        board.className = `game-board pk-board ${gameState.level}`;
+        board.innerHTML = '';
+        state.board.forEach((tile, index) => {
+            const el = document.createElement('div');
+            el.className = 'word-tile';
+            el.dataset.index = index;
+            if (tile.type === 'blank') {
+                el.classList.add('blank');
+                el.innerHTML = '<div class="tile-content">⭐</div>';
+            } else {
+                const badge = tile.type === 'english' ? 'EN' : '中';
+                const emoji = tile.type === 'chinese' && tile.word.emoji ? `<div class="tile-emoji">${tile.word.emoji}</div>` : '';
+                el.innerHTML = `<span class="tile-type-badge">${badge}</span>${emoji}<div class="tile-content ${tile.type}">${tile.content}</div>`;
+            }
+            el.addEventListener('click', () => handlePkTileClick(playerIndex, index, el));
+            board.appendChild(el);
+        });
+    }
+
+    function handlePkTileClick(playerIndex, index, el) {
+        if (!gameState.isPlaying || gameState.isPaused) return;
+        const state = pkStates[playerIndex];
+        const tile = state.board[index];
+        if (!tile || state.finished || tile.type === 'blank' || el.classList.contains('matched')) return;
+        if (el.classList.contains('selected')) {
+            el.classList.remove('selected');
+            state.selectedTiles = state.selectedTiles.filter(item => item.index !== index);
+            return;
+        }
+        if (state.selectedTiles.length >= 2) clearPkSelection(state);
+        el.classList.add('selected');
+        state.selectedTiles.push({ index, tile, element: el });
+        if (tile.type === 'english') speakWord(tile.content);
+        if (state.selectedTiles.length === 2) setTimeout(() => checkPkMatch(playerIndex), 420);
+    }
+
+    function clearPkSelection(state) {
+        state.selectedTiles.forEach(({ element }) => element.classList.remove('selected'));
+        state.selectedTiles = [];
+    }
+
+    function checkPkMatch(playerIndex) {
+        if (!gameState.isPlaying || gameState.isPaused) return;
+        const state = pkStates[playerIndex];
+        if (!state || state.selectedTiles.length !== 2) return;
+        const [first, second] = state.selectedTiles;
+        state.totalAttempts++;
+        if (first.tile.matchId === second.tile.matchId && first.tile.type !== second.tile.type) {
+            [first, second].forEach(item => { item.element.classList.remove('selected'); item.element.classList.add('matched'); });
+            state.correctAttempts++;
+            state.matchedCount += 2;
+            state.score += 10;
+            playSound(true);
+            if (state.matchedCount >= levelConfig[gameState.level].pairs * 2) {
+                state.finished = true;
+                endPkGame(playerIndex, true);
+            }
+        } else {
+            [first, second].forEach(item => { item.element.classList.remove('selected'); item.element.classList.add('wrong'); });
+            setTimeout(() => [first, second].forEach(item => item.element.classList.remove('wrong')), 450);
+            state.score = Math.max(0, state.score - 5);
+            playSound(false);
+        }
+        state.selectedTiles = [];
+        updatePkUI();
+    }
+
+    function updatePkUI() {
+        const totalPairs = levelConfig[gameState.level].pairs;
+        pkStates.forEach((state, index) => {
+            if (!state) return;
+            const accuracy = state.totalAttempts ? Math.round(state.correctAttempts / state.totalAttempts * 100) : 100;
+            pkScores[index].textContent = `⭐ ${state.score}`;
+            pkMetas[index].textContent = `已配对 ${state.matchedCount / 2} / ${totalPairs} · 正确率 ${accuracy}%`;
+        });
+    }
+
+    function endPkGame(winnerIndex, completed) {
+        if (!gameState.isPlaying) return;
+        gameState.isPlaying = false;
+        if (gameState.timer) { clearInterval(gameState.timer); gameState.timer = null; }
+        const winner = pkStates[winnerIndex];
+        const name = pkNames[winnerIndex].value.trim() || `玩家 ${winnerIndex + 1}`;
+        let message;
+        if (completed) {
+            const bonus = gameState.timeLeft * 2;
+            winner.score += bonus;
+            message = `🏆 ${name} 率先完成全部配对！<br>⏱️ 时间奖励：+${bonus} 分<br>⭐ 最终得分：${winner.score} 分`;
+        } else {
+            const otherIndex = winnerIndex === 0 ? 1 : 0;
+            const other = pkStates[otherIndex];
+            const tie = winner.matchedCount === other.matchedCount && winner.score === other.score;
+            message = tie ? '🤝 时间到，双方战平！<br>下次再来一局吧！' : `🏆 时间到，${name} 获胜！<br>完成 ${winner.matchedCount / 2} 对 · ⭐ ${winner.score} 分`;
+        }
+        if (!(!completed && winner.matchedCount === pkStates[1 - winnerIndex].matchedCount && winner.score === pkStates[1 - winnerIndex].score)) pkPlayers[winnerIndex].classList.add('winner');
+        updatePkUI();
+        showWinner(message);
+        updateUI();
+    }
+
+    function finishPkOnTime() {
+        const [first, second] = pkStates;
+        if (!first || !second) return;
+        const winnerIndex = first.matchedCount > second.matchedCount || (first.matchedCount === second.matchedCount && first.score >= second.score) ? 0 : 1;
+        endPkGame(winnerIndex, false);
     }
 
     // 点击处理
@@ -5104,7 +5362,8 @@ const VOCAB_DATA = [
     }
 
     function showWinner(msg) {
-        winnerAnnouncement.innerHTML = `<div class="big-emoji">${msg.includes('🎉') ? '🎉' : '⏰'}</div>${msg}`;
+        const icon = msg.includes('🏆') ? '🏆' : (msg.includes('🎉') ? '🎉' : (msg.includes('🤝') ? '🤝' : '⏰'));
+        winnerAnnouncement.innerHTML = `<div class="big-emoji">${icon}</div>${msg}`;
         winnerAnnouncement.style.display = 'block';
 
         setTimeout(() => {
@@ -5114,7 +5373,8 @@ const VOCAB_DATA = [
 
     // 更新 UI
     function updateUI() {
-        scoreElement.textContent = gameState.score;
+        const isPk = gameState.mode === 'pk';
+        scoreElement.textContent = isPk ? 'PK' : gameState.score;
         timerElement.textContent = gameState.timeLeft;
 
         // 大倒计时
@@ -5134,10 +5394,10 @@ const VOCAB_DATA = [
         const accuracy = gameState.totalAttempts > 0
             ? Math.round((gameState.correctAttempts / gameState.totalAttempts) * 100)
             : 100;
-        accuracyElement.textContent = accuracy + '%';
+        accuracyElement.textContent = isPk ? '对战中' : accuracy + '%';
 
         // 进度条
-        const matched = document.querySelectorAll('.word-tile.matched').length;
+        const matched = isPk && pkStates.length ? Math.max(...pkStates.map(state => state.matchedCount)) : document.querySelectorAll('#gameBoard .word-tile.matched').length;
         const total = levelConfig[gameState.level].pairs * 2;
         const progress = Math.min((matched / total) * 100, 100);
         progressFill.style.width = progress + '%';
@@ -5154,7 +5414,8 @@ const VOCAB_DATA = [
                 gameState.timeLeft--;
                 updateUI();
                 if (gameState.timeLeft <= 0) {
-                    endGame('⏰ 时间到！');
+                    if (gameState.mode === 'pk') finishPkOnTime();
+                    else endGame('⏰ 时间到！');
                 }
             }
         }, 1000);
@@ -5318,7 +5579,7 @@ const VOCAB_DATA = [
         } else {
             pickCount.textContent = `${g.units.length} 单元 · 已选 ${cnt}`;
         }
-        subtitle.textContent = `人教PEP · ${g.name}`;
+        subtitle.textContent = `人教PEP · ${g.name} · ${gameState.mode === 'pk' ? '双人 PK' : '配对练习'}`;
     }
 
     function openPickPanel() {
@@ -5337,6 +5598,12 @@ const VOCAB_DATA = [
     // ==========================================
 
     document.addEventListener('DOMContentLoaded', function() {
+        // 页面主题：默认纯白，记住本机上一次选择。
+        let savedTheme = 'white';
+        try { savedTheme = localStorage.getItem('wordMatchTheme') || 'white'; } catch (e) { /* ignore */ }
+        applyTheme(savedTheme);
+        themeSelect.addEventListener('change', function() { applyTheme(this.value); });
+
         // 年级 + 单元下拉
         function populateGradeSelect() {
             const sel = document.getElementById('gradeSelect');
@@ -5417,6 +5684,20 @@ const VOCAB_DATA = [
                 if (!gameState.isPlaying) {
                     initGame();
                 }
+            });
+        });
+
+        // 模式切换：对战双方始终使用同一张随机棋盘，开始后锁定模式。
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (gameState.isPlaying) return;
+                gameState.mode = this.dataset.mode;
+                document.querySelectorAll('.mode-btn').forEach(item => {
+                    const active = item === this;
+                    item.classList.toggle('active', active);
+                    item.setAttribute('aria-selected', active ? 'true' : 'false');
+                });
+                initGame();
             });
         });
 
