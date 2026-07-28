@@ -2,7 +2,11 @@
 
 人教PEP 小学英语单词配对游戏，支持 **三年级 ~ 四年级** 多册教材，无需网络、打开即玩。
 
-> 🌐 **在线体验**：[https://cjs19890026-cmyk.github.io/teacher_ai/](https://cjs19890026-cmyk.github.io/teacher_ai/人教PEP三上单词消消乐.html)
+> 🌐 **在线体验**：部署完成后访问
+> 
+> ```
+> https://cjs19890026-cmyk.github.io/teacher_ai/人教PEP三上单词消消乐.html
+> ```
 > 
 > 📦 纯 HTML 单文件，下载即可离线使用。
 
