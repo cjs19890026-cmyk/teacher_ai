@@ -50,8 +50,9 @@
 
         .subtitle {
             font-size: 1em;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.95);
             margin-bottom: 10px;
+            font-weight: 500;
         }
 
         /* Level Selector */
@@ -102,11 +103,11 @@
         }
 
         .stat-item { text-align: center; min-width: 60px; }
-        .stat-label { font-size: 12px; color: #888; margin-bottom: 2px; }
+        .stat-label { font-size: 12px; color: #444; margin-bottom: 2px; font-weight: 600; }
         .stat-value { font-size: 22px; font-weight: bold; color: #333; }
 
-        .stat-value.score { color: #f093fb; }
-        .stat-value.accuracy { color: #667eea; }
+        .stat-value.score { color: #d63384; }
+        .stat-value.accuracy { color: #4a5fcf; }
 
         /* Tile emoji (Chinese side only) */
         .tile-emoji {
@@ -130,8 +131,8 @@
 
         .rule-line {
             font-size: 12px;
-            font-weight: 600;
-            color: #555;
+            font-weight: 700;
+            color: #222;
             line-height: 1.6;
             white-space: nowrap;
         }
@@ -295,22 +296,23 @@
         }
 
         .tile-content.english {
-            color: #667eea;
+            color: #2c3e9b;
         }
 
         .tile-content.chinese {
-            color: #f093fb;
+            color: #c44569;
         }
 
         .tile-type-badge {
             position: absolute;
             top: 3px;
             right: 3px;
-            font-size: 0.6em;
-            background: rgba(102,126,234,0.1);
-            padding: 1px 5px;
+            font-size: 0.65em;
+            font-weight: 700;
+            background: rgba(102,126,234,0.15);
+            padding: 2px 6px;
             border-radius: 6px;
-            color: #999;
+            color: #4a5fcf;
         }
 
         /* Blank tiles */
@@ -370,11 +372,12 @@
             background: white;
             border-radius: 20px;
             padding: 30px 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border: 3px solid #667eea;
             text-align: center;
             font-size: 1.3em;
             font-weight: bold;
-            color: #333;
+            color: #111;
             z-index: 100;
             line-height: 1.6;
             max-width: 90vw;
@@ -398,12 +401,12 @@
 
         .grade-select, .unit-select {
             padding: 6px 14px;
-            border: 1.5px solid rgba(255,255,255,0.35);
+            border: 2px solid rgba(255,255,255,0.5);
             border-radius: 20px;
             font-size: 13px;
-            font-weight: 600;
-            background: rgba(255,255,255,0.15);
-            color: rgba(255,255,255,0.9);
+            font-weight: 700;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
             cursor: pointer;
             outline: none;
             transition: background 0.2s;
@@ -415,13 +418,13 @@
 
         .pick-btn {
             padding: 5px 14px;
-            border: 2px solid rgba(255,255,255,0.4);
+            border: 2px solid rgba(255,255,255,0.6);
             border-radius: 20px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            background: rgba(255,255,255,0.12);
-            color: white;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
             transition: all 0.25s;
         }
 
@@ -450,8 +453,9 @@
 
         .pick-count {
             font-size: 12px;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.9);
             margin-left: auto;
+            font-weight: 600;
         }
 
         /* Slide-out pick panel */
@@ -507,10 +511,11 @@
             height: 32px;
             border: none;
             border-radius: 50%;
-            background: #f5f5f5;
+            background: #e8e8e8;
             cursor: pointer;
             font-size: 16px;
-            color: #666;
+            font-weight: 700;
+            color: #222;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -532,8 +537,8 @@
 
         .pick-unit-title {
             font-size: 14px;
-            font-weight: 700;
-            color: #555;
+            font-weight: 800;
+            color: #222;
             margin-bottom: 6px;
             padding-left: 4px;
             display: flex;
@@ -574,9 +579,10 @@
         }
 
         .pick-word.checked {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
+            background: #4a5fcf;
+            color: #fff;
+            border-color: #4a5fcf;
+            font-weight: 700;
         }
 
         .pick-word .pw-en { font-weight: 600; }
@@ -598,13 +604,13 @@
         }
 
         .pick-panel-confirm {
-            padding: 8px 22px;
+            padding: 10px 24px;
             border: none;
             border-radius: 20px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #4a5fcf, #5a3d8a);
             color: white;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.25s;
         }
@@ -642,8 +648,9 @@
         .game-footer {
             text-align: center;
             margin-top: 10px;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.85);
             font-size: 12px;
+            font-weight: 500;
         }
     </style>
 </head>
