@@ -302,18 +302,6 @@
             color: #c44569;
         }
 
-        .tile-type-badge {
-            position: absolute;
-            top: 3px;
-            right: 3px;
-            font-size: 0.65em;
-            font-weight: 700;
-            background: rgba(102,126,234,0.15);
-            padding: 2px 6px;
-            border-radius: 6px;
-            color: #4a5fcf;
-        }
-
         /* Blank tiles */
         .word-tile.blank {
             background: rgba(255,255,255,0.3);
@@ -712,7 +700,7 @@
         .pk-board .word-tile { min-height: clamp(58px, 6vw, 88px); border-radius: 12px; padding: 3px; }
         .pk-board .tile-content { font-size: clamp(.95rem, 2.1cqi, 1.25rem); }
         .pk-board .tile-emoji { font-size: clamp(1rem, 2.8cqi, 1.55rem); }
-        .pk-board .tile-type-badge { font-size: .5em; padding: 1px 4px; }
+
         @media (max-width: 760px) {
             .game-header { display: block; text-align: center; }
             .subtitle { margin-top: 6px; }
@@ -5086,13 +5074,11 @@ const VOCAB_DATA = [
             } else if (tile.type === 'chinese') {
                 const emojiHtml = tile.word.emoji ? `<div class="tile-emoji">${tile.word.emoji}</div>` : '';
                 el.innerHTML = `
-                    <span class="tile-type-badge">中</span>
                     ${emojiHtml}
                     <div class="tile-content ${tile.type}">${tile.content}</div>
                 `;
             } else {
                 el.innerHTML = `
-                    <span class="tile-type-badge">EN</span>
                     <div class="tile-content ${tile.type}">${tile.content}</div>
                 `;
             }
@@ -5136,7 +5122,7 @@ const VOCAB_DATA = [
             } else {
                 const badge = tile.type === 'english' ? 'EN' : '中';
                 const emoji = tile.type === 'chinese' && tile.word.emoji ? `<div class="tile-emoji">${tile.word.emoji}</div>` : '';
-                el.innerHTML = `<span class="tile-type-badge">${badge}</span>${emoji}<div class="tile-content ${tile.type}">${tile.content}</div>`;
+                el.innerHTML = `${emoji}<div class="tile-content ${tile.type}">${tile.content}</div>`;
             }
             el.addEventListener('click', () => handlePkTileClick(playerIndex, index, el));
             board.appendChild(el);
