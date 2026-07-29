@@ -693,6 +693,19 @@
         .control-btn.start { background: linear-gradient(135deg, #4c50d5, #7367e9); color: #fff; }
         .game-footer { color: #667085; }
 
+        /* 单人得分历史：宽屏固定在右侧，不影响原有棋盘与操作区位置。 */
+        .history-sidebar { position: absolute; top: 272px; right: clamp(18px, 2vw, 32px); z-index: 3; width: 218px; padding: 15px; background: rgba(255,255,255,.92); border: 1px solid var(--surface-border); border-radius: 18px; box-shadow: 0 10px 24px rgba(51, 58, 118, .12); }
+        .history-sidebar.hidden { display: none; }
+        .history-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--ink); font-size: 15px; font-weight: 900; }
+        .history-badge { padding: 3px 7px; border-radius: 20px; background: var(--panel); color: var(--primary); font-size: 11px; }
+        .history-empty { padding: 18px 2px 7px; color: var(--muted); font-size: 13px; line-height: 1.55; text-align: center; }
+        .history-list { max-height: 335px; margin: 11px 0 0; padding: 0; overflow-y: auto; list-style: none; }
+        .history-item { display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 7px; padding: 9px 2px; border-bottom: 1px dashed #e3e6f4; }
+        .history-item:last-child { border-bottom: 0; }
+        .history-rank { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 9px; background: var(--panel); color: var(--primary); font-size: 12px; font-weight: 900; }
+        .history-detail { color: var(--muted); font-size: 11px; line-height: 1.45; }
+        .history-score { color: var(--primary); font-size: 17px; font-weight: 900; white-space: nowrap; }
+
         /* PK mode */
         .pk-area { display: none; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(14px, 2vw, 28px); margin-bottom: 16px; }
         .pk-area.visible { display: grid; }
@@ -723,6 +736,7 @@
             .pk-player-head { margin-bottom: 7px; }
             .pk-name { width: 80px; font-size: .9rem; }
             .pk-score { padding: 4px 7px; font-size: .85rem; }
+            .history-sidebar { position: static; width: min(680px, 100%); margin: 0 auto 16px; }
         }
         @media (max-width: 500px) {
             .game-board:not(.pk-board) { padding: 9px; gap: 6px; }
@@ -807,6 +821,14 @@
 
     <!-- Game Board -->
     <div class="game-board easy" id="gameBoard"></div>
+
+    <!-- 单人模式得分历史（宽屏显示于右侧） -->
+    <aside class="history-sidebar" id="historySidebar" aria-label="单人得分历史">
+        <div class="history-title">📒 得分历史 <span class="history-badge">最近 10 局</span></div>
+        <div class="history-empty" id="historyEmpty">完成一局单人挑战后，<br>成绩会显示在这里。</div>
+        <ol class="history-list" id="historyList"></ol>
+        <button class="history-clear" id="historyClear" style="display:none;margin-top:10px;width:100%;padding:6px;border:1px solid #ddd;border-radius:8px;background:#f8f8f8;color:#999;cursor:pointer;font-size:12px;" onclick="clearSoloHistory();this.style.display='none'">🗑 清空记录</button>
+    </aside>
 
     <!-- PK：两名玩家看到完全相同的棋盘，共享倒计时 -->
     <section class="pk-area" id="pkArea" aria-label="双人 PK 对战区">
@@ -4971,6 +4993,9 @@ const VOCAB_DATA = [
     const pickPanelConfirm = document.getElementById('pickPanelConfirm');
     const voiceSelect = document.getElementById('voiceSelect');
     const themeSelect = document.getElementById('themeSelect');
+    const historySidebar = document.getElementById('historySidebar');
+    const historyList = document.getElementById('historyList');
+    const historyEmpty = document.getElementById('historyEmpty');
     const pkArea = document.getElementById('pkArea');
     const pkBoards = [document.getElementById('pkBoard1'), document.getElementById('pkBoard2')];
     const pkPlayers = [document.getElementById('pkPlayer1'), document.getElementById('pkPlayer2')];
@@ -4978,12 +5003,41 @@ const VOCAB_DATA = [
     const pkMetas = [document.getElementById('pkMeta1'), document.getElementById('pkMeta2')];
     const pkNames = [document.getElementById('player1Name'), document.getElementById('player2Name')];
     let pkStates = [];
+    let soloHistory = [];
 
     function applyTheme(theme) {
         const selectedTheme = ['cartoon', 'white', 'ocean', 'forest', 'sunset', 'night'].includes(theme) ? theme : 'cartoon';
         document.body.dataset.theme = selectedTheme;
         themeSelect.value = selectedTheme;
         try { localStorage.setItem('wordMatchThemeV2', selectedTheme); } catch (e) { /* 私密模式下仍可正常切换 */ }
+    }
+
+    function renderSoloHistory() {
+        historyList.innerHTML = '';
+        historyEmpty.hidden = soloHistory.length > 0;
+        document.getElementById('historyClear').style.display = soloHistory.length > 0 ? '' : 'none';
+        soloHistory.forEach((record, index) => {
+            const item = document.createElement('li');
+            item.className = 'history-item';
+            item.innerHTML = `<span class="history-rank">${index + 1}</span><span class="history-detail">正确率 ${record.accuracy}%<br>用时 ${record.usedSeconds} 秒</span><strong class="history-score">${record.score}</strong>`;
+            historyList.appendChild(item);
+        });
+    }
+
+    function addSoloHistory(score, accuracy) {
+        const timeLimit = levelConfig[gameState.level].timeLimit;
+        soloHistory.unshift({ score, accuracy, usedSeconds: Math.max(0, timeLimit - gameState.timeLeft) });
+        soloHistory = soloHistory.slice(0, 10);
+        renderSoloHistory();
+    }
+
+    function clearSoloHistory() {
+        soloHistory = [];
+        renderSoloHistory();
+    }
+
+    function getSelectionSignature() {
+        return [...selectedWordSet].sort().join('|');
     }
 
     // ==========================================
@@ -5012,6 +5066,7 @@ const VOCAB_DATA = [
             pkArea.classList.remove('visible');
             generateGameBoard();
         }
+        historySidebar.classList.toggle('hidden', gameState.mode !== 'solo');
         updateUI();
         winnerAnnouncement.style.display = 'none';
         updatePickSummary();
@@ -5353,6 +5408,11 @@ const VOCAB_DATA = [
             msg = `${emoji} ${reason}<br>
                    完成 ${matched/2}/${levelConfig[gameState.level].pairs} 对<br>
                    ⭐ 得分: ${gameState.score} 分`;
+        }
+
+        // 单人模式写入得分历史
+        if (gameState.mode === 'solo') {
+            addSoloHistory(gameState.score, accuracy);
         }
 
         showWinner(msg);
