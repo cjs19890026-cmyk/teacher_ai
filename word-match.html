@@ -645,17 +645,27 @@
         }
 
         /* ── 2026 visual refresh ─────────────────────────── */
-        :root { --ink: #17233f; --muted: #667085; --primary: #5b5ce2; --mint: #35c99a; --panel: #f5f7ff; --page-a: #ffffff; --page-b: #edf1f7; --page-c: #dfe6f0; --surface: #ffffff; --surface-border: #e3e8f1; --board-bg: #edf0ff; --board-bg-end: #f7f8ff; --board-border: #dce2ff; }
+        /* 默认：明亮可爱的卡通乐园 */
+        :root { --ink: #3d3863; --muted: #766f96; --primary: #f05d9e; --mint: #40c99a; --panel: #fff0b8; --page-a: #fff1a8; --page-b: #91e8e1; --page-c: #a9a0f6; --surface: #fffdf9; --surface-border: #ffd45b; --board-bg: #dff8ff; --board-bg-end: #fff7d9; --board-border: #8bdfdf; }
         body {
             min-height: 100dvh;
             padding: clamp(12px, 2vw, 32px);
             background: radial-gradient(circle at 8% 10%, var(--page-a) 0, transparent 26rem), radial-gradient(circle at 92% 0%, var(--page-b) 0, transparent 28rem), linear-gradient(135deg, var(--page-a), var(--page-b) 58%, var(--page-c));
         }
+        body[data-theme="white"] { --ink: #17233f; --muted: #667085; --primary: #5b5ce2; --mint: #35c99a; --panel: #f5f7ff; --page-a: #ffffff; --page-b: #edf1f7; --page-c: #dfe6f0; --surface: #ffffff; --surface-border: #e3e8f1; --board-bg: #edf0ff; --board-bg-end: #f7f8ff; --board-border: #dce2ff; }
+        body[data-theme="cartoon"] { --ink: #3d3863; --muted: #766f96; --primary: #f05d9e; --mint: #40c99a; --panel: #fff0b8; --page-a: #fff1a8; --page-b: #91e8e1; --page-c: #a9a0f6; --surface: #fffdf9; --surface-border: #ffd45b; --board-bg: #dff8ff; --board-bg-end: #fff7d9; --board-border: #8bdfdf; }
         body[data-theme="ocean"] { --page-a: #c9f1ff; --page-b: #73c7ed; --page-c: #4775d1; --surface: #f8fdff; --surface-border: #bce7f8; --panel: #e4f7ff; --primary: #1773c9; --board-bg: #e5f4ff; --board-bg-end: #f7fcff; --board-border: #afdff4; }
         body[data-theme="forest"] { --page-a: #dff5d7; --page-b: #91cf99; --page-c: #3b8b68; --surface: #fbfff9; --surface-border: #cce8c6; --panel: #edf9e9; --primary: #27835c; --board-bg: #eaf7e6; --board-bg-end: #fbfffa; --board-border: #c1e5ba; }
         body[data-theme="sunset"] { --page-a: #fff0c9; --page-b: #ffbd8e; --page-c: #e76d6d; --surface: #fffdf9; --surface-border: #ffe0bd; --panel: #fff5e6; --primary: #d85b49; --board-bg: #fff0df; --board-bg-end: #fffaf5; --board-border: #ffd0a5; }
         body[data-theme="night"] { --page-a: #222553; --page-b: #434180; --page-c: #7a4c9d; --surface: #fcfcff; --surface-border: #d7d9f2; --panel: #f0f0fc; --primary: #6253c7; --board-bg: #ececff; --board-bg-end: #fafaff; --board-border: #cbcaf4; }
-        .game-container { max-width: min(1480px, 98vw); padding: clamp(18px, 2.4vw, 34px); background: var(--surface); border: 1px solid var(--surface-border); border-radius: 28px; box-shadow: 0 24px 70px rgba(25, 24, 87, .22); }
+        .game-container { position: relative; max-width: min(1480px, 98vw); padding: clamp(18px, 2.4vw, 34px); background: var(--surface); border: 1px solid var(--surface-border); border-radius: 28px; box-shadow: 0 24px 70px rgba(25, 24, 87, .22); }
+        body[data-theme="cartoon"] .game-container { border-width: 3px; box-shadow: 0 14px 0 #f7b84d, 0 24px 60px rgba(101, 82, 180, .28); }
+        body[data-theme="cartoon"] .game-container::before, body[data-theme="cartoon"] .game-container::after { position: absolute; z-index: 2; display: grid; place-items: center; width: clamp(44px, 5vw, 68px); aspect-ratio: 1; border: 3px solid #fff; border-radius: 50%; background: #ff83b7; box-shadow: 0 5px 0 rgba(117, 77, 156, .18); font-size: clamp(28px, 3vw, 44px); pointer-events: none; }
+        body[data-theme="cartoon"] .game-container::before { content: '🐰'; top: -24px; right: clamp(18px, 5vw, 80px); transform: rotate(10deg); }
+        body[data-theme="cartoon"] .game-container::after { content: '🐻'; bottom: -24px; left: clamp(18px, 5vw, 80px); background: #8edee6; transform: rotate(-10deg); }
+        body[data-theme="cartoon"] .game-title { color: #e95091; text-shadow: 2px 2px 0 #fff, 4px 4px 0 #ffd56a; }
+        body[data-theme="cartoon"] .top-bar { border-color: #ffd56a; }
+        body[data-theme="cartoon"] .mode-selector { background: #dff8ff; }
         .game-header { color: var(--ink); display: flex; align-items: baseline; justify-content: space-between; text-align: left; gap: 16px; margin: 0 0 20px; }
         .game-title { margin: 0; font-size: clamp(1.75rem, 3vw, 2.8rem); letter-spacing: -.06em; }
         .subtitle { margin: 0; color: var(--muted); }
@@ -718,6 +728,7 @@
             .game-board:not(.pk-board) { padding: 9px; gap: 6px; }
             .pk-board .word-tile { min-height: 44px; }
             .pk-board { gap: 4px; padding: 6px; }
+            body[data-theme="cartoon"] .game-container::after { display: none; }
         }
     </style>
 </head>
@@ -740,6 +751,7 @@
         <select class="unit-select" id="unitSelect"></select>
         <button class="pick-btn" id="pickBtn">📝 自选</button>
         <select class="theme-select" id="themeSelect" aria-label="页面主题">
+            <option value="cartoon">🐾 卡通乐园（默认）</option>
             <option value="white">🤍 纯白主题</option>
             <option value="ocean">🌊 海洋蓝</option>
             <option value="forest">🌿 森林绿</option>
@@ -4968,10 +4980,10 @@ const VOCAB_DATA = [
     let pkStates = [];
 
     function applyTheme(theme) {
-        const selectedTheme = ['white', 'ocean', 'forest', 'sunset', 'night'].includes(theme) ? theme : 'white';
+        const selectedTheme = ['cartoon', 'white', 'ocean', 'forest', 'sunset', 'night'].includes(theme) ? theme : 'cartoon';
         document.body.dataset.theme = selectedTheme;
         themeSelect.value = selectedTheme;
-        try { localStorage.setItem('wordMatchTheme', selectedTheme); } catch (e) { /* 私密模式下仍可正常切换 */ }
+        try { localStorage.setItem('wordMatchThemeV2', selectedTheme); } catch (e) { /* 私密模式下仍可正常切换 */ }
     }
 
     // ==========================================
@@ -5584,9 +5596,9 @@ const VOCAB_DATA = [
     // ==========================================
 
     document.addEventListener('DOMContentLoaded', function() {
-        // 页面主题：默认纯白，记住本机上一次选择。
-        let savedTheme = 'white';
-        try { savedTheme = localStorage.getItem('wordMatchTheme') || 'white'; } catch (e) { /* ignore */ }
+        // 页面主题：默认卡通乐园，记住本机上一次选择。
+        let savedTheme = 'cartoon';
+        try { savedTheme = localStorage.getItem('wordMatchThemeV2') || 'cartoon'; } catch (e) { /* ignore */ }
         applyTheme(savedTheme);
         themeSelect.addEventListener('change', function() { applyTheme(this.value); });
 
